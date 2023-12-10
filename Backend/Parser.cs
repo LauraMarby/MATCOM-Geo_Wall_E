@@ -29,6 +29,9 @@ namespace INTERPRETE_C__to_HULK
         //booleano que me dice si una variable esta dentro de una sequencia o no
         bool is_in_seq;
 
+        //booleano que me dice si la variable esta en foma de parametro en una funcion
+        bool is_param;
+
         /// <summary>
         /// Constructor de la clase Parser
         /// </summary>
@@ -193,9 +196,11 @@ namespace INTERPRETE_C__to_HULK
             position++;
 
             Expect(TokenType.L_PHARENTESYS, "(");
+            is_param = true;
             Node p1 = Factor();
             Expect(TokenType.COMMA, ",");
             Node p2 = Factor();
+            is_param = false;
             Expect(TokenType.R_PHARENTESYS, ")");
 
             return new Node { Type = "measure", Children = new List<Node> { p1, p2 } };
@@ -207,9 +212,11 @@ namespace INTERPRETE_C__to_HULK
             position++;
 
             Expect(TokenType.L_PHARENTESYS, "(");
+            is_param = true;
             Node f1 = Factor();
             Expect(TokenType.COMMA, ",");
             Node f2 = Factor();
+            is_param = false;
             Expect(TokenType.R_PHARENTESYS, ")");
 
             return new Node { Type = "intersect", Children = new List<Node> { f1, f2 } };
@@ -221,7 +228,9 @@ namespace INTERPRETE_C__to_HULK
             position++;
 
             Expect(TokenType.L_PHARENTESYS, "(");
+            is_param = true;
             Node f = Factor();
+            is_param = false;
             Expect(TokenType.R_PHARENTESYS, ")");
 
             return new Node { Type = "points", Children = new List<Node>() { f } };
@@ -233,7 +242,9 @@ namespace INTERPRETE_C__to_HULK
             position++;
 
             Expect(TokenType.L_PHARENTESYS, "(");
+            is_param = true;
             Node sec = Factor();
+            is_param = false;
             Expect(TokenType.R_PHARENTESYS, ")");
 
             return new Node { Type = "count", Children = new List<Node> { sec } };
@@ -394,9 +405,11 @@ namespace INTERPRETE_C__to_HULK
                 Node name = new Node { Type = "g_name", Value = TS[position - 2].Value.ToString() };
                 position++;
                 Expect(TokenType.L_PHARENTESYS, "(");
+                is_param = true;
                 Node var1 = Factor();
                 Expect(TokenType.COMMA, ",");
                 Node var2 = Factor();
+                is_param = false;
                 Expect(TokenType.R_PHARENTESYS, ")");
                 return new Node { Type = "line", Children = new List<Node> { name, var1, var2 } };
 
@@ -407,9 +420,11 @@ namespace INTERPRETE_C__to_HULK
                 Node name = new Node { Type = "g_name", Value = TS[position - 2].Value.ToString() };
                 position++;
                 Expect(TokenType.L_PHARENTESYS, "(");
+                is_param = true;
                 Node var1 = Factor();
                 Expect(TokenType.COMMA, ",");
                 Node var2 = Factor();
+                is_param = false;
                 Expect(TokenType.R_PHARENTESYS, ")");
                 return new Node { Type = "segment", Children = new List<Node> { name, var1, var2 } };
 
@@ -420,9 +435,11 @@ namespace INTERPRETE_C__to_HULK
                 Node name = new Node { Type = "g_name", Value = TS[position - 2].Value.ToString() };
                 position++;
                 Expect(TokenType.L_PHARENTESYS, "(");
+                is_param = true;
                 Node var1 = Factor();
                 Expect(TokenType.COMMA, ",");
                 Node var2 = Factor();
+                is_param = false;
                 Expect(TokenType.R_PHARENTESYS, ")");
                 return new Node { Type = "ray", Children = new List<Node> { name, var1, var2 } };
 
@@ -433,9 +450,11 @@ namespace INTERPRETE_C__to_HULK
                 Node name = new Node { Type = "g_name", Value = TS[position - 2].Value.ToString() };
                 position++;
                 Expect(TokenType.L_PHARENTESYS, "(");
+                is_param = true;
                 Node point = Factor();
                 Expect(TokenType.COMMA, ",");
                 Node measure = Factor();
+                is_param = false;
                 Expect(TokenType.R_PHARENTESYS, ")");
                 return new Node { Type = "circle", Children = new List<Node> { name, point, measure } };
 
@@ -446,6 +465,7 @@ namespace INTERPRETE_C__to_HULK
                 Node name = new Node { Type = "g_name", Value = TS[position - 2].Value.ToString() };
                 position++;
                 Expect(TokenType.L_PHARENTESYS, "(");
+                is_param = true;
                 Node var1 = Factor();
                 Expect(TokenType.COMMA, ",");
                 Node var2 = Factor();
@@ -453,6 +473,7 @@ namespace INTERPRETE_C__to_HULK
                 Node var3 = Factor();
                 Expect(TokenType.COMMA, ",");
                 Node var4 = Factor();
+                is_param = false;
                 Expect(TokenType.R_PHARENTESYS, ")");
                 return new Node { Type = "arc", Children = new List<Node> { name, var1, var2, var3, var4 } };
             }
@@ -462,9 +483,11 @@ namespace INTERPRETE_C__to_HULK
                 Node name = new Node { Type = "g_name", Value = TS[position - 2].Value.ToString() };
                 position++;
                 Expect(TokenType.L_PHARENTESYS, "(");
+                is_param = true;
                 Node point_1 = Factor();
                 Expect(TokenType.COMMA, ",");
                 Node point_2 = Factor();
+                is_param = false;
                 Expect(TokenType.R_PHARENTESYS, ")");
                 return new Node { Type = "measure", Children = new List<Node> { name, point_1, point_2 } };
 
@@ -595,7 +618,7 @@ namespace INTERPRETE_C__to_HULK
             else if (TS[position].Type == TokenType.VARIABLE || TS[position].Type == TokenType.UNDERSCORE)
             {
                 //si a la variable le precede una coma, procesar como asignacion de valores de una secuencia
-                if (TS[position + 1].Type == TokenType.COMMA && !is_in_seq)
+                if (TS[position + 1].Type == TokenType.COMMA && !is_in_seq && !is_param)
                 {
                     //crear nodo hijo con la lista de variables a asignar
                     Node vars = new Node { Type = "asign_seq_var_name" };
