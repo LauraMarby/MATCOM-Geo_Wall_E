@@ -6,41 +6,14 @@ using System.Collections.Generic;
 
 public partial class Drawing_Area : Panel
 {
-	//en este nodo es donde se va a efectuar el dibujado de las primitivas
-	//DATO: el plano XY esta comprendido por x E (0,525) y E (0,600) donde XY es el plano en donde se efectua el dibujado
-	//NOTA: revisar el caso que pidan dibujar con nombre al lado
-
-	//numero que me define cuantas primitivas voy a dibujar de cada tipo
-	//NOTA: habra que cambiarlo despues pero la idea es esa
-	//private int cant = 0;
-
-	//tipo de primitiva que debo dibujar
-	//NOTA:tambien debera ser cambiado
-	//public PrimitiveType primitiveType = PrimitiveType.None;
-
 	public List<DrawableProperties> figures;
 
 	public bool draw = false;
 
-	//enum que me define los tipos de primitivas que puedo dibujar 
-	/*public enum PrimitiveType
-	{
-		Point,
-		Circle,
-		Line,
-		Segment,
-		Ray,
-		Arc,
-		None,
-	}*/
+	Font font = (Font)GD.Load("res://images/font.TTF");
 
-
-	//metodo draw definido que itera por cada vez que debe dibujar una figura
-	//NOTA: habra que modificar, la idea es esa
 	public override void _Draw()
 	{
-		//voy a dibujar en el plano por orden de dependencia, ya que en godot con cuelqier orden se ve feo, o no se ve XD
-		var font = GetThemeFont("font");
 		string text;
 
 		//primero las circunferencias
@@ -50,7 +23,7 @@ public partial class Drawing_Area : Panel
 			{
 				DrawCircle(new Vector2((float)f.P1.X, (float)f.P1.Y), (float)f.Radius, Paint(f.Color));
 				text = f.Msg;
-				if (text is not null) DrawString(font, new Vector2((float)f.P1.X, (float)f.P1.Y), text, HorizontalAlignment.Left, 200, 200, Colors.White);
+				if (text is not null) DrawString(font, new Vector2((float)f.P1.X, (float)f.P1.Y), text, HorizontalAlignment.Left, 500, 20, Colors.White);
 			}
 		}
 
@@ -89,42 +62,9 @@ public partial class Drawing_Area : Panel
 		{
 			if (f.Type == "line")
 			{
-				x4 = (float)f.P2.X;
-				y4 = (float)f.P2.Y;
-				if (f.P1.Y == f.P2.Y)
-				{
-					x3 = 0;
-					y3 = (double)f.P1.Y;
-					x4 = 525;
-					y4 = (double)f.P2.Y;
-				}
-				if (f.P1.X == f.P2.X)
-				{
-					x3 = (double)f.P1.X;
-					y3 = 0;
-					x4 = (double)f.P2.X;
-					y4 = 600;
-				}
-				else
-				{
-					double m = (double)(f.P2.Y - f.P1.Y) / (double)(f.P2.X - f.P1.X);
-					double n = (double)f.P1.Y - m * (double)f.P1.X;
-					x3 = 0;
-					y3 = n;
-					int extreme0 = Limit_X((int)m, (int)n, 525);
-					int extremef = Limit_Y((int)m, (int)n, 600);
-					if (extreme0 < 600)
-					{
-						x4 = 525;
-						y4 = extreme0;
-					}
-					else if (extremef < 525)
-					{
-						x4 = extremef;
-						y4 = 600;
-					}
-				}
-				DrawLine(new Vector2((float)x3, (float)y3), new Vector2((float)x4, (float)y4), Paint(f.Color));
+				var points = RectIntersection(new Vector2((float)f.P1.X, (float)f.P1.Y), new Vector2((float)f.P2.X, (float)f.P2.Y), 1152, 648, 0, 0);
+
+				DrawLine(points[0], points[1], Paint(f.Color));
 				text = f.Msg;
 				if (text is not null) DrawString(font, new Vector2((float)f.P1.X, (float)f.P1.Y), text, HorizontalAlignment.Left, 200, 200, Colors.White);
 			}
@@ -146,45 +86,9 @@ public partial class Drawing_Area : Panel
 		{
 			if (f.Type == "ray")
 			{
-				x3 = (double)f.P1.X;
-				y3 = (double)f.P1.Y;
+				var point = RayBorder(RectIntersection(new Vector2((float)f.P1.X, (float)f.P1.Y), new Vector2((float)f.P2.X, (float)f.P2.Y), 1152, 648, 0, 0), new Vector2((float)f.P1.X, (float)f.P1.Y), new Vector2((float)f.P2.X, (float)f.P2.Y));
 
-				if (f.P1.Y == f.P2.Y)
-				{
-					x3 = 525;
-					y3 = (double)f.P2.Y;
-				}
-				if (f.P1.X == f.P2.X)
-				{
-					x3 = (double)f.P2.X;
-					y3 = 600;
-				}
-				else
-				{
-					double m = (double)(f.P2.Y - f.P1.Y) / (double)(f.P2.X - f.P1.X);
-					double n = (double)f.P1.Y - m * (double)f.P1.X;
-					if (f.P2.X > f.P1.X)
-					{
-						double extreme0 = Limit_X((int)m, (int)n, 525);
-						double extremef = Limit_Y((int)m, (int)n, 600);
-						if (extreme0 < 600)
-						{
-							x3 = 525;
-							y3 = extreme0;
-						}
-						else if (extremef < 525)
-						{
-							x3 = extremef;
-							y3 = 600;
-						}
-					}
-					if (f.P2.X < f.P1.X)
-					{
-						x3 = 0;
-						y3 = n;
-					}
-				}
-				DrawLine(new Vector2((float)f.P1.X, (float)f.P1.Y), new Vector2((float)x3, (float)y3), Colors.Green);
+				DrawLine(new Vector2((float)f.P1.X, (float)f.P1.Y), point, Colors.Green);
 				text = f.Msg;
 				if (text is not null) DrawString(font, new Vector2((float)f.P1.X, (float)f.P1.Y), text, HorizontalAlignment.Left, 200, 200, Colors.White);
 			}
@@ -211,6 +115,72 @@ public partial class Drawing_Area : Panel
 	int Limit_Y(int m, int n, int y)
 	{
 		return (y - n) / m;
+	}
+
+	private List<Vector2> RectIntersection(Vector2 p1, Vector2 p2, int MaxX, int MaxY, int MinX, int MinY)
+	{
+		List<Vector2> Intersection = new List<Vector2>();
+
+		//Calculando pendiente y desplazamiento de la recta
+		if (p2.X - p1.X == 0)
+		{
+			Intersection.Add(new Vector2(p2.X, MinY));
+			Intersection.Add(new Vector2(p2.X, MaxY));
+		}
+		else if (p2.Y - p1.Y == 0)
+		{
+			Intersection.Add(new Vector2(MinX, p2.Y));
+			Intersection.Add(new Vector2(MaxX, p2.Y));
+		}
+		else
+		{
+			float m = (p2.Y - p1.Y) / (p2.X - p1.X);
+			float n = p2.Y - p2.X * m;
+			for (int i = 0; i < 4; i++)
+			{
+				float X;
+				float Y;
+				if (i == 0)
+				{
+					X = (MinY - n) / m;
+					Y = (m * X) + n;
+				}
+				else if (i == 1)
+				{
+					X = (MaxY - n) / m;
+					Y = (m * X) + n;
+				}
+				else if (i == 2)
+				{
+					Y = (m * MinX) + n;
+					X = (Y - n) / m;
+				}
+				else
+				{
+					Y = (m * MaxX) + n;
+					X = (Y - n) / m;
+				}
+				//Si no son válidos, sigue
+				if (X > MaxX || X < MinX || Y > MaxY || Y < MinY)
+				{
+					continue;
+				}
+				//Si son válidos, entonces agregalos a la lista como intersección
+				else
+				{
+					Intersection.Add(new Vector2(X, Y));
+				}
+			}
+		}
+		return Intersection;
+	}
+
+	private Vector2 RayBorder(List<Vector2> list, Vector2 p1, Vector2 p2)
+	{
+		double db1 = Math.Sqrt(Math.Pow(p2.X - list[0].X, 2) + Math.Pow(p2.Y - list[0].Y, 2));
+		double db2 = Math.Sqrt(Math.Pow(p2.X - list[1].X, 2) + Math.Pow(p2.Y - list[1].Y, 2));
+		if (db1 < db2) return list[0];
+		return list[1];
 	}
 
 	//metodo que recibe la orden de dibujar
@@ -255,8 +225,6 @@ public partial class Drawing_Area : Panel
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
-		//conecto la senal de boton presionado a la orden de dibujar
-		//NOTA: esto obviamente hay que cambiarlo a cuando reciba los datos del interprete y dibujar(cambiar la senal)
 		//GetNode<Button>("/root/Scene/Fondo/Interact_Area/Confirm_Button").Connect("pressed", Callable.From(Changed));
 		_Draw();
 	}

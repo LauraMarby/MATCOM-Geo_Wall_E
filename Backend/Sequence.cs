@@ -1,9 +1,8 @@
 using INTERPRETE_C__to_HULK;
 using G_Wall_E;
-using System.Numerics;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System;
 
 namespace G_Wall_E
 {
@@ -15,47 +14,33 @@ namespace G_Wall_E
         //las unicas secuecias que pueden ser infinitas son las de enteros
         public bool is_infinite { get; set; } //define si una secuencia es infinita o no, si es verdadero, la ultima de la lista de secuencias concatenadas es la que es infinita
         public bool is_undefined { get; set; } //define si la secuencia esta indefinida o no
-        public int Count { get; set; } //define la cantidad de elementos que tiene la secuencia 
+        public int Count   //define la cantidad de elementos que tiene la secuencia 
+        {
+            get
+            {
+                int count = 0;
+                foreach(var x in values) foreach(var y in x) count++;
+                return count;
+            }
+        }
         public List<int> is_undefined_concat { get; set; } //define en que indices de la lista de secuencias, las secuencias estan concatenadas con undefined
     }
 
-    /*public class UnknownSequence<T> : ISequence<T>
-    {
-        List<T> values { get; set; }
-        public string? name { get; set; }
-        bool is_finite { get; set; }
-        List<T> ISequence<T>.values { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        bool ISequence<T>.is_finite { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-        public UnknownSequence(UnknownSequence<T> seq)
-        {
-            values = seq.values;
-            name = seq.name;
-            is_finite = seq.is_finite;
-        }
-    }*/
-
-    /*public class UndefinedSequence<T>: ISequence<T>
-    {
-        public List<List<T>> values { get; set; } 
-        public string name { get; set; }
-        public bool is_infinite { get; set; }
-        public int Count { get; set; }
-        public bool is_undefined { get; set; }
-        public List<int> is_undefined_concat { get; set; }
-
-        public UndefinedSequence()
-        {
-            is_undefined = true;
-        }
-    }*/
     public class PointSequence : ISequence<Point> //secuencia de puntos
     {
         public List<List<Point>> values { get; set; }
         public string? name { get; set; }
         public bool is_infinite { get; set; } //las secuencias de puntos no son infinitas, si lo son, son undefined
         public bool is_undefined { get; set; }
-        public int Count { get; set; }
+        public int Count   //define la cantidad de elementos que tiene la secuencia 
+        {
+            get
+            {
+                int count = 0;
+                foreach(var x in values) foreach(var y in x) count++;
+                return count;
+            }
+        }
         public List<int> is_undefined_concat { get; set; }
 
         public PointSequence(bool is_undefined)
@@ -67,24 +52,11 @@ namespace G_Wall_E
         public PointSequence(List<Point> points) //constructor para una secuencia
         {
             values = new List<List<Point>>() { points };
-            Count = points.Count;
             is_undefined_concat = new List<int>();
         }
         public PointSequence(List<List<Point>> values) //constructor para la lista de secuencias, usado en concatenacion
         {
             this.values = values;
-            Count = 0;
-            foreach (var x in values)
-            {
-                foreach (var y in x) Count++;
-            }
-            is_undefined_concat = new List<int>();
-        }
-        public PointSequence(List<Point> points, string name)
-        {
-            this.name = name;
-            values = new List<List<Point>>() { points };
-            Count = points.Count;
             is_undefined_concat = new List<int>();
         }
         public PointSequence(string name, string color, bool is_finite) //cobstructor para una secuencia aleatoria
@@ -101,7 +73,6 @@ namespace G_Wall_E
                     count++;
                 }
                 values.Add(l);
-                Count = l.Count;
             }
             else is_infinite = true;
             is_undefined_concat = new List<int>();
@@ -125,7 +96,7 @@ namespace G_Wall_E
                 //anade la secuencia a la familia de secuencias concatenadas
                 concat_values.Add(l);
                 //ir actualizando el largo de la secuencia
-                concat_sequence.Count += l.Count;
+                //concat_sequence.Count += l.Count;
                 //si la secuencia actual esta concatenada con undefined, anadir a la lista 
                 if (is_undefined_concat.Contains(i)) concat_sequence.is_undefined_concat.Add(i);
             }
@@ -143,7 +114,7 @@ namespace G_Wall_E
                 //anade la secuencia a la familia de secuencias concatenadas
                 concat_values.Add(l);
                 //ir actualizando el largo d la secuencia
-                concat_sequence.Count += l.Count;
+                //concat_sequence.Count += l.Count;
                 //si la secuencia actual esta concatenada con undefined, anadir a la lista 
                 //si una secuencia esta sumada n veces con undefined, contara como que esta concatenada una sola vez
                 if (s.is_undefined_concat.Contains(i)) concat_sequence.is_undefined_concat.Add(concat_values.Count - 1);
@@ -161,22 +132,38 @@ namespace G_Wall_E
             //itero por las variables
             foreach (Node child in node.Children)
             {
-                if (child.Value.ToString() == "_")
-                {
-                    if (j < values[i].Count || is_undefined_concat.Contains(i)) j++;
-                    continue;
-                }
                 //su nombre
                 string name = child.Value.ToString();
                 //su valor en la sequencia
                 dynamic var_value;
 
-                if (is_undefined || j == values[i].Count) var_value = "undefined";
+                //si es una secuencia undefined, asignar valor undefined
+                if (is_undefined) 
+                {
+                    var_value = "undefined";
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                }
 
-                //si no alcanzo secuencia para el valor de la variable asignarle una secuencia vacua
+                //si no alcanzo secuencia para el valor de la variable y es la ultima de los hijos asignarle una secuencia vacua
                 else if (node.Children.Last() == child && i > values.Count() - 1)
                 {
                     var_value = new PointSequence(false);
+                    continue;
+                }
+
+                //si no alcanzo secuencia para el valor de la variable y no es la ultima de los hijos asignarle undefined
+                else if (i > values.Count() - 1)
+                {
+                    var_value = "undefined";
+                    //lo anado al nodo de familia de variables
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                }
+
+                else if (child.Value.ToString() == "_")
+                {
+                    if (j < values[i].Count || is_undefined_concat.Contains(i)) j++;
                     continue;
                 }
 
@@ -208,6 +195,9 @@ namespace G_Wall_E
 
                     //darle el valor de la sequencia
                     var_value = s;
+                    //lo anado al nodo de familia de variables
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    break;
                 }
 
                 else var_value = values[i][j];
@@ -219,7 +209,7 @@ namespace G_Wall_E
                     j = 0;
                     i++;
                 }
-                else if (j < values[i].Count || is_undefined_concat.Contains(i)) j++;
+                else if (j < values[i].Count - 1 || is_undefined_concat.Contains(i)) j++;
                 else
                 {
                     j = 0;
@@ -236,7 +226,15 @@ namespace G_Wall_E
         public string? name { get; set; }
         public bool is_infinite { get; set; }
         public bool is_undefined { get; set; }
-        public int Count { get; set; }
+        public int Count   //define la cantidad de elementos que tiene la secuencia 
+        {
+            get
+            {
+                int count = 0;
+                foreach(var x in values) foreach(var y in x) count++;
+                return count;
+            }
+        }
         public List<int> is_undefined_concat { get; set; }
 
         public LineSequence(bool is_undefined)
@@ -248,23 +246,18 @@ namespace G_Wall_E
         public LineSequence(List<Line> values) //
         {
             this.values = new List<List<Line>>() { values };
-            Count = values.Count;
+            //Count = values.Count;
             is_undefined_concat = new List<int>();
         }
         public LineSequence(List<List<Line>> values) //constructor para la lista de secuencias, usado en concatenacion
         {
             this.values = values;
-            Count = 0;
-            foreach (var x in values)
+            //Count = 0;
+            /*foreach (var x in values)
             {
                 foreach (var y in x) Count++;
-            }
+            }*/
             is_undefined_concat = new List<int>();
-        }
-        public LineSequence(List<Line> values, string name)
-        {
-            this.name = name;
-            this.values = new List<List<Line>>() { values };
         }
         public LineSequence(string name, string color, bool is_finite) //
         {
@@ -280,7 +273,7 @@ namespace G_Wall_E
                     count++;
                 }
                 values.Add(l);
-                Count = l.Count;
+                //Count = l.Count;
             }
             else is_infinite = true;
             is_undefined_concat = new List<int>();
@@ -304,7 +297,7 @@ namespace G_Wall_E
                 //anade la secuencia a la familia de secuencias concatenadas
                 concat_values.Add(l);
                 //ir actualizando el largo de la secuencia
-                concat_sequence.Count += l.Count;
+                //concat_sequence.Count += l.Count;
                 //si la secuencia actual esta concatenada con undefined, anadir a la lista 
                 if (is_undefined_concat.Contains(i)) concat_sequence.is_undefined_concat.Add(i);
             }
@@ -322,7 +315,7 @@ namespace G_Wall_E
                 //anade la secuencia a la familia de secuencias concatenadas
                 concat_values.Add(l);
                 //ir actualizando el largo d la secuencia
-                concat_sequence.Count += l.Count;
+                //concat_sequence.Count += l.Count;
                 //si la secuencia actual esta concatenada con undefined, anadir a la lista 
                 //si una secuencia esta sumada n veces con undefined, contara como que esta concatenada una sola vez
                 if (s.is_undefined_concat.Contains(i)) concat_sequence.is_undefined_concat.Add(concat_values.Count - 1);
@@ -340,22 +333,35 @@ namespace G_Wall_E
             //itero por las variables
             foreach (Node child in node.Children)
             {
-                if (child.Value.ToString() == "_")
-                {
-                    if (j < values[i].Count || is_undefined_concat.Contains(i)) j++;
-                    continue;
-                }
                 //su nombre
                 string name = child.Value.ToString();
                 //su valor en la sequencia
                 dynamic var_value;
 
-                if (is_undefined || j == values[i].Count) var_value = "undefined";
+                if (is_undefined)
+                {
+                    var_value = "undefined";
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                } 
 
                 //si no alcanzo secuencia para el valor de la variable asignarle una secuencia vacua
                 else if (node.Children.Last() == child && i > values.Count() - 1)
                 {
                     var_value = new LineSequence(false);
+                    continue;
+                }
+
+                else if(i > values.Count() - 1)
+                {
+                    var_value = "undefined";
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                }
+
+                if (child.Value.ToString() == "_")
+                {
+                    if (j < values[i].Count || is_undefined_concat.Contains(i)) j++;
                     continue;
                 }
 
@@ -387,6 +393,9 @@ namespace G_Wall_E
 
                     //darle el valor de la sequencia
                     var_value = s;
+                    //lo anado al nodo de familia de variables
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    break;
                 }
 
                 else var_value = values[i][j];
@@ -415,7 +424,15 @@ namespace G_Wall_E
         public string? name { get; set; }
         public bool is_infinite { get; set; }
         public bool is_undefined { get; set; }
-        public int Count { get; set; }
+        public int Count   //define la cantidad de elementos que tiene la secuencia 
+        {
+            get
+            {
+                int count = 0;
+                foreach(var x in values) foreach(var y in x) count++;
+                return count;
+            }
+        }
         public List<int> is_undefined_concat { get; set; }
 
         public SegmentSequence(bool is_undefined)
@@ -427,23 +444,17 @@ namespace G_Wall_E
         public SegmentSequence(List<Segment> values) //
         {
             this.values = new List<List<Segment>>() { values };
-            Count = values.Count;
+            //Count = values.Count;
             is_undefined_concat = new List<int>();
         }
         public SegmentSequence(List<List<Segment>> values) //constructor para la lista de secuencias, usado en concatenacion
         {
             this.values = values;
-            Count = 0;
-            foreach (var x in values)
+            //Count = 0;
+            /*foreach (var x in values)
             {
                 foreach (var y in x) Count++;
-            }
-            is_undefined_concat = new List<int>();
-        }
-        public SegmentSequence(List<Segment> values, string name)
-        {
-            this.name = name;
-            this.values = new List<List<Segment>>() { values };
+            }*/
             is_undefined_concat = new List<int>();
         }
         public SegmentSequence(string name, string color, bool is_finite) //
@@ -460,7 +471,7 @@ namespace G_Wall_E
                     count++;
                 }
                 values.Add(l);
-                Count = l.Count;
+                //Count = l.Count;
             }
             else is_infinite = true;
             is_undefined_concat = new List<int>();
@@ -484,7 +495,7 @@ namespace G_Wall_E
                 //anade la secuencia a la familia de secuencias concatenadas
                 concat_values.Add(l);
                 //ir actualizando el largo de la secuencia
-                concat_sequence.Count += l.Count;
+                //concat_sequence.Count += l.Count;
                 //si la secuencia actual esta concatenada con undefined, anadir a la lista 
                 if (is_undefined_concat.Contains(i)) concat_sequence.is_undefined_concat.Add(i);
             }
@@ -502,7 +513,7 @@ namespace G_Wall_E
                 //anade la secuencia a la familia de secuencias concatenadas
                 concat_values.Add(l);
                 //ir actualizando el largo d la secuencia
-                concat_sequence.Count += l.Count;
+                //concat_sequence.Count += l.Count;
                 //si la secuencia actual esta concatenada con undefined, anadir a la lista 
                 //si una secuencia esta sumada n veces con undefined, contara como que esta concatenada una sola vez
                 if (s.is_undefined_concat.Contains(i)) concat_sequence.is_undefined_concat.Add(concat_values.Count - 1);
@@ -520,20 +531,35 @@ namespace G_Wall_E
             //itero por las variables
             foreach (Node child in node.Children)
             {
-                if (child.Value.ToString() == "_")
-                {
-                    if (j < values[i].Count || is_undefined_concat.Contains(i)) j++;
-                    continue;
-                }
                 //su nombre
                 string name = child.Value.ToString();
                 //su valor en la sequencia
                 dynamic var_value;
-                if (is_undefined || j == values[i].Count) var_value = "undefined";
 
+                if (is_undefined)
+                {
+                    var_value = "undefined";
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                } 
+
+                //si no alcanzo secuencia para el valor de la variable asignarle una secuencia vacua
                 else if (node.Children.Last() == child && i > values.Count() - 1)
                 {
-                    var_value = new IntSequence(false);
+                    var_value = new LineSequence(false);
+                    continue;
+                }
+
+                else if(i > values.Count() - 1)
+                {
+                    var_value = "undefined";
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                }
+
+                if (child.Value.ToString() == "_")
+                {
+                    if (j < values[i].Count || is_undefined_concat.Contains(i)) j++;
                     continue;
                 }
 
@@ -565,6 +591,9 @@ namespace G_Wall_E
 
                     //darle el valor de la sequencia
                     var_value = s;
+                    //lo anado al nodo de familia de variables
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    break;
                 }
 
                 else var_value = values[i][j];
@@ -592,7 +621,15 @@ namespace G_Wall_E
         public string? name { get; set; }
         public bool is_infinite { get; set; }
         public bool is_undefined { get; set; }
-        public int Count { get; set; }
+        public int Count   //define la cantidad de elementos que tiene la secuencia 
+        {
+            get
+            {
+                int count = 0;
+                foreach(var x in values) foreach(var y in x) count++;
+                return count;
+            }
+        }
         public List<int> is_undefined_concat { get; set; }
 
         public RaySequence(bool is_undefined)
@@ -604,23 +641,17 @@ namespace G_Wall_E
         public RaySequence(List<Ray> values) //
         {
             this.values = new List<List<Ray>>() { values };
-            Count = values.Count;
+            //Count = values.Count;
             is_undefined_concat = new List<int>();
         }
         public RaySequence(List<List<Ray>> values) //constructor para la lista de secuencias, usado en concatenacion
         {
             this.values = values;
-            Count = 0;
-            foreach (var x in values)
+            //Count = 0;
+            /*foreach (var x in values)
             {
                 foreach (var y in x) Count++;
-            }
-            is_undefined_concat = new List<int>();
-        }
-        public RaySequence(List<Ray> values, string name)
-        {
-            this.name = name;
-            this.values = new List<List<Ray>>() { values };
+            }*/
             is_undefined_concat = new List<int>();
         }
         public RaySequence(string name, string color, bool is_finite) //
@@ -637,7 +668,7 @@ namespace G_Wall_E
                     count++;
                 }
                 values.Add(l);
-                Count = l.Count;
+                //Count = l.Count;
             }
             else is_infinite = true;
             is_undefined_concat = new List<int>();
@@ -661,7 +692,7 @@ namespace G_Wall_E
                 //anade la secuencia a la familia de secuencias concatenadas
                 concat_values.Add(l);
                 //ir actualizando el largo de la secuencia
-                concat_sequence.Count += l.Count;
+                //concat_sequence.Count += l.Count;
                 //si la secuencia actual esta concatenada con undefined, anadir a la lista 
                 if (is_undefined_concat.Contains(i)) concat_sequence.is_undefined_concat.Add(i);
             }
@@ -679,7 +710,7 @@ namespace G_Wall_E
                 //anade la secuencia a la familia de secuencias concatenadas
                 concat_values.Add(l);
                 //ir actualizando el largo d la secuencia
-                concat_sequence.Count += l.Count;
+                //concat_sequence.Count += l.Count;
                 //si la secuencia actual esta concatenada con undefined, anadir a la lista 
                 //si una secuencia esta sumada n veces con undefined, contara como que esta concatenada una sola vez
                 if (s.is_undefined_concat.Contains(i)) concat_sequence.is_undefined_concat.Add(concat_values.Count - 1);
@@ -697,20 +728,35 @@ namespace G_Wall_E
             //itero por las variables
             foreach (Node child in node.Children)
             {
-                if (child.Value.ToString() == "_")
-                {
-                    if (j < values[i].Count || is_undefined_concat.Contains(i)) j++;
-                    continue;
-                }
                 //su nombre
                 string name = child.Value.ToString();
                 //su valor en la sequencia
                 dynamic var_value;
-                if (is_undefined || j == values[i].Count) var_value = "undefined";
 
+                if (is_undefined)
+                {
+                    var_value = "undefined";
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                } 
+
+                //si no alcanzo secuencia para el valor de la variable asignarle una secuencia vacua
                 else if (node.Children.Last() == child && i > values.Count() - 1)
                 {
-                    var_value = new IntSequence(false);
+                    var_value = new LineSequence(false);
+                    continue;
+                }
+
+                else if(i > values.Count() - 1)
+                {
+                    var_value = "undefined";
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                }
+
+                if (child.Value.ToString() == "_")
+                {
+                    if (j < values[i].Count || is_undefined_concat.Contains(i)) j++;
                     continue;
                 }
 
@@ -742,6 +788,9 @@ namespace G_Wall_E
 
                     //darle el valor de la sequencia
                     var_value = s;
+                    //lo anado al nodo de familia de variables
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    break;
                 }
 
                 else var_value = values[i][j];
@@ -769,7 +818,15 @@ namespace G_Wall_E
         public string? name { get; set; }
         public bool is_infinite { get; set; }
         public bool is_undefined { get; set; }
-        public int Count { get; set; }
+        public int Count   //define la cantidad de elementos que tiene la secuencia 
+        {
+            get
+            {
+                int count = 0;
+                foreach(var x in values) foreach(var y in x) count++;
+                return count;
+            }
+        }
         public List<int> is_undefined_concat { get; set; }
 
         public CircleSequence(bool is_undefined)
@@ -781,23 +838,18 @@ namespace G_Wall_E
         public CircleSequence(List<Circle> values) //
         {
             this.values = new List<List<Circle>>() { values };
-            Count = values.Count;
+            //Count = values.Count;
             is_undefined_concat = new List<int>();
         }
         public CircleSequence(List<List<Circle>> values) //constructor para la lista de secuencias, usado en concatenacion
         {
             this.values = values;
-            Count = 0;
-            foreach (var x in values)
+            //Count = 0;
+            /*foreach (var x in values)
             {
                 foreach (var y in x) Count++;
-            }
+            }*/
             is_undefined_concat = new List<int>();
-        }
-        public CircleSequence(List<Circle> values, string name)
-        {
-            this.name = name;
-            this.values = new List<List<Circle>>() { values };
         }
         public CircleSequence(string name, string color, bool is_finite) //
         {
@@ -813,7 +865,7 @@ namespace G_Wall_E
                     count++;
                 }
                 values.Add(l);
-                Count = l.Count;
+                //Count = l.Count;
             }
             else is_infinite = true;
             is_undefined_concat = new List<int>();
@@ -837,7 +889,7 @@ namespace G_Wall_E
                 //anade la secuencia a la familia de secuencias concatenadas
                 concat_values.Add(l);
                 //ir actualizando el largo de la secuencia
-                concat_sequence.Count += l.Count;
+                //concat_sequence.Count += l.Count;
                 //si la secuencia actual esta concatenada con undefined, anadir a la lista 
                 if (is_undefined_concat.Contains(i)) concat_sequence.is_undefined_concat.Add(i);
             }
@@ -855,7 +907,7 @@ namespace G_Wall_E
                 //anade la secuencia a la familia de secuencias concatenadas
                 concat_values.Add(l);
                 //ir actualizando el largo d la secuencia
-                concat_sequence.Count += l.Count;
+                //concat_sequence.Count += l.Count;
                 //si la secuencia actual esta concatenada con undefined, anadir a la lista 
                 //si una secuencia esta sumada n veces con undefined, contara como que esta concatenada una sola vez
                 if (s.is_undefined_concat.Contains(i)) concat_sequence.is_undefined_concat.Add(concat_values.Count - 1);
@@ -873,23 +925,37 @@ namespace G_Wall_E
             //itero por las variables
             foreach (Node child in node.Children)
             {
+                //su nombre
+                string name = child.Value.ToString();
+                //su valor en la sequencia
+                dynamic var_value;
+
+                if (is_undefined)
+                {
+                    var_value = "undefined";
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                } 
+
+                //si no alcanzo secuencia para el valor de la variable asignarle una secuencia vacua
+                else if (node.Children.Last() == child && i > values.Count() - 1)
+                {
+                    var_value = new LineSequence(false);
+                    continue;
+                }
+
+                else if(i > values.Count() - 1)
+                {
+                    var_value = "undefined";
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                }
+
                 if (child.Value.ToString() == "_")
                 {
                     if (j < values[i].Count || is_undefined_concat.Contains(i)) j++;
                     continue;
                 }
-                //su nombre
-                string name = child.Value.ToString();
-                //su valor en la sequencia
-                dynamic var_value;
-                if (is_undefined || j == values[i].Count) var_value = "undefined";
-
-                else if (node.Children.Last() == child && i > values.Count() - 1)
-                {
-                    var_value = new IntSequence(false);
-                    continue;
-                }
-
                 //si el ultimo valor termina siendo una sequencia
                 else if (node.Children.Last() == child && (j != values[i].Count - 1 || i != values.Count() - 1))
                 {
@@ -918,6 +984,9 @@ namespace G_Wall_E
 
                     //darle el valor de la sequencia
                     var_value = s;
+                    //lo anado al nodo de familia de variables
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    break;
                 }
 
                 else var_value = values[i][j];
@@ -945,7 +1014,15 @@ namespace G_Wall_E
         public string? name { get; set; }
         public bool is_infinite { get; set; }
         public bool is_undefined { get; set; }
-        public int Count { get; set; }
+        public int Count   //define la cantidad de elementos que tiene la secuencia 
+        {
+            get
+            {
+                int count = 0;
+                foreach(var x in values) foreach(var y in x) count++;
+                return count;
+            }
+        }
         public List<int> is_undefined_concat { get; set; }
 
         public ArcSequence(bool is_undefined)
@@ -957,23 +1034,17 @@ namespace G_Wall_E
         public ArcSequence(List<Arc> values) //
         {
             this.values = new List<List<Arc>>() { values };
-            Count = values.Count;
+            //Count = values.Count;
             is_undefined_concat = new List<int>();
         }
         public ArcSequence(List<List<Arc>> values) //constructor para la lista de secuencias, usado en concatenacion
         {
             this.values = values;
-            Count = 0;
-            foreach (var x in values)
+            //Count = 0;
+            /*foreach (var x in values)
             {
                 foreach (var y in x) Count++;
-            }
-            is_undefined_concat = new List<int>();
-        }
-        public ArcSequence(List<Arc> values, string name)
-        {
-            this.name = name;
-            this.values = new List<List<Arc>>() { values };
+            }*/
             is_undefined_concat = new List<int>();
         }
         public ArcSequence(string name, string color, bool is_finite) //
@@ -990,7 +1061,7 @@ namespace G_Wall_E
                     count++;
                 }
                 values.Add(l);
-                Count = l.Count;
+                //Count = l.Count;
             }
             else is_infinite = true;
             is_undefined_concat = new List<int>();
@@ -1014,7 +1085,7 @@ namespace G_Wall_E
                 //anade la secuencia a la familia de secuencias concatenadas
                 concat_values.Add(l);
                 //ir actualizando el largo de la secuencia
-                concat_sequence.Count += l.Count;
+                //concat_sequence.Count += l.Count;
                 //si la secuencia actual esta concatenada con undefined, anadir a la lista 
                 if (is_undefined_concat.Contains(i)) concat_sequence.is_undefined_concat.Add(i);
             }
@@ -1032,7 +1103,7 @@ namespace G_Wall_E
                 //anade la secuencia a la familia de secuencias concatenadas
                 concat_values.Add(l);
                 //ir actualizando el largo d la secuencia
-                concat_sequence.Count += l.Count;
+                //concat_sequence.Count += l.Count;
                 //si la secuencia actual esta concatenada con undefined, anadir a la lista 
                 //si una secuencia esta sumada n veces con undefined, contara como que esta concatenada una sola vez
                 if (s.is_undefined_concat.Contains(i)) concat_sequence.is_undefined_concat.Add(concat_values.Count - 1);
@@ -1050,20 +1121,35 @@ namespace G_Wall_E
             //itero por las variables
             foreach (Node child in node.Children)
             {
-                if (child.Value.ToString() == "_")
-                {
-                    if (j < values[i].Count || is_undefined_concat.Contains(i)) j++;
-                    continue;
-                }
                 //su nombre
                 string name = child.Value.ToString();
                 //su valor en la sequencia
                 dynamic var_value;
-                if (is_undefined || j == values[i].Count) var_value = "undefined";
 
+                if (is_undefined)
+                {
+                    var_value = "undefined";
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                } 
+
+                //si no alcanzo secuencia para el valor de la variable asignarle una secuencia vacua
                 else if (node.Children.Last() == child && i > values.Count() - 1)
                 {
-                    var_value = new IntSequence(false);
+                    var_value = new LineSequence(false);
+                    continue;
+                }
+
+                else if(i > values.Count() - 1)
+                {
+                    var_value = "undefined";
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                }
+
+                if (child.Value.ToString() == "_")
+                {
+                    if (j < values[i].Count || is_undefined_concat.Contains(i)) j++;
                     continue;
                 }
 
@@ -1095,6 +1181,9 @@ namespace G_Wall_E
 
                     //darle el valor de la sequencia
                     var_value = s;
+                    //lo anado al nodo de familia de variables
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    break;
                 }
 
                 else var_value = values[i][j];
@@ -1122,7 +1211,15 @@ namespace G_Wall_E
         public string? name { get; set; }
         public bool is_infinite { get; set; } //las secuencias de string nunca son infinitas
         public bool is_undefined { get; set; }
-        public int Count { get; set; }
+        public int Count   //define la cantidad de elementos que tiene la secuencia 
+        {
+            get
+            {
+                int count = 0;
+                foreach(var x in values) foreach(var y in x) count++;
+                return count;
+            }
+        }
         public List<int> is_undefined_concat { get; set; }
 
         public StringSequence(bool is_undefined)
@@ -1134,25 +1231,19 @@ namespace G_Wall_E
         public StringSequence(List<string> values) //
         {
             this.values = new List<List<string>>() { values };
-            Count = values.Count;
+            //Count = values.Count;
             is_undefined_concat = new List<int>();
         }
         public StringSequence(List<List<string>> values) //constructor para la lista de secuencias, usado en concatenacion
         {
             this.values = values;
-            Count = 0;
-            foreach (var x in values)
+            //Count = 0;
+            /*foreach (var x in values)
             {
                 foreach (var y in x) Count++;
-            }
+            }*/
             is_undefined_concat = new List<int>();
         }
-        public StringSequence(List<string> values, string name)
-        {
-            this.name = name;
-            this.values = new List<List<string>>() { values };
-        }
-
         public StringSequence Concat(StringSequence s) //metodo que concatena la secuencia actual con la recibida y devuelve el resultado
         {
             List<List<string>> concat_values = new List<List<string>>();
@@ -1171,7 +1262,7 @@ namespace G_Wall_E
                 //anade la secuencia a la familia de secuencias concatenadas
                 concat_values.Add(l);
                 //ir actualizando el largo de la secuencia
-                concat_sequence.Count += l.Count;
+                //concat_sequence.Count += l.Count;
                 //si la secuencia actual esta concatenada con undefined, anadir a la lista 
                 if (is_undefined_concat.Contains(i)) concat_sequence.is_undefined_concat.Add(i);
             }
@@ -1189,7 +1280,7 @@ namespace G_Wall_E
                 //anade la secuencia a la familia de secuencias concatenadas
                 concat_values.Add(l);
                 //ir actualizando el largo d la secuencia
-                concat_sequence.Count += l.Count;
+                //concat_sequence.Count += l.Count;
                 //si la secuencia actual esta concatenada con undefined, anadir a la lista 
                 //si una secuencia esta sumada n veces con undefined, contara como que esta concatenada una sola vez
                 if (s.is_undefined_concat.Contains(i)) concat_sequence.is_undefined_concat.Add(concat_values.Count - 1);
@@ -1207,20 +1298,35 @@ namespace G_Wall_E
             //itero por las variables
             foreach (Node child in node.Children)
             {
-                if (child.Value.ToString() == "_")
-                {
-                    if (j < values[i].Count || is_undefined_concat.Contains(i)) j++;
-                    continue;
-                }
                 //su nombre
                 string name = child.Value.ToString();
                 //su valor en la sequencia
                 dynamic var_value;
-                if (is_undefined || j == values[i].Count) var_value = "undefined";
 
+                if (is_undefined)
+                {
+                    var_value = "undefined";
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                } 
+
+                //si no alcanzo secuencia para el valor de la variable asignarle una secuencia vacua
                 else if (node.Children.Last() == child && i > values.Count() - 1)
                 {
-                    var_value = new IntSequence(false);
+                    var_value = new LineSequence(false);
+                    continue;
+                }
+
+                else if(i > values.Count() - 1)
+                {
+                    var_value = "undefined";
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                }
+
+                if (child.Value.ToString() == "_")
+                {
+                    if (j < values[i].Count || is_undefined_concat.Contains(i)) j++;
                     continue;
                 }
 
@@ -1252,6 +1358,9 @@ namespace G_Wall_E
 
                     //darle el valor de la sequencia
                     var_value = s;
+                    //lo anado al nodo de familia de variables
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    break;
                 }
 
                 else var_value = values[i][j];
@@ -1279,7 +1388,15 @@ namespace G_Wall_E
         public string? name { get; set; }
         public bool is_infinite { get; set; }
         public bool is_undefined { get; set; }
-        public int Count { get; set; }
+        public int Count   //define la cantidad de elementos que tiene la secuencia 
+        {
+            get
+            {
+                int count = 0;
+                foreach(var x in values) foreach(var y in x) count++;
+                return count;
+            }
+        }
         public List<int> is_undefined_concat { get; set; }
 
         public IntSequence(bool is_undefined)
@@ -1291,23 +1408,18 @@ namespace G_Wall_E
         public IntSequence(List<double> values) //
         {
             this.values = new List<List<double>>() { values };
-            Count = values.Count;
+            //Count = values.Count;
             is_undefined_concat = new List<int>();
         }
         public IntSequence(List<List<double>> values) //constructor para la lista de secuencias, usado en concatenacion
         {
             this.values = values;
-            Count = 0;
-            foreach (var x in values)
+            //Count = 0;
+            /*foreach (var x in values)
             {
                 foreach (var y in x) Count++;
-            }
+            }*/
             is_undefined_concat = new List<int>();
-        }
-        public IntSequence(List<double> values, string name)
-        {
-            this.name = name;
-            this.values = new List<List<double>>() { values };
         }
         public IntSequence(/*string name,*/ double inf, double sup)
         {
@@ -1318,7 +1430,7 @@ namespace G_Wall_E
                 inf++;
             }
             values = new List<List<double>>() { l };
-            Count = l.Count;
+            //Count = l.Count;
             is_undefined_concat = new List<int>();
         }
         public IntSequence(/*string name,*/ double inf)
@@ -1326,15 +1438,14 @@ namespace G_Wall_E
             //ir anadiendo a medida que se vayan pidiendo valores ya que es infinito*/
             this.is_infinite = true;
             values = new List<List<double>>() { new List<double>() { inf } };
-            Count = 1;
+            //Count = 1;
             is_undefined_concat = new List<int>();
         }
-
         public IntSequence Concat(IntSequence s) //metodo que concatena la secuencia actual con la recibida y devuelve el resultado
         {
             List<List<double>> concat_values = new List<List<double>>();
             IntSequence concat_sequence = new IntSequence(concat_values);
-            concat_sequence.Count = 0;
+            //concat_sequence.Count = 0;
 
             if (is_undefined) //si la primera secuencia a concatenar es indefinida, indefinir la concatenacion y devolver 
             {
@@ -1349,7 +1460,7 @@ namespace G_Wall_E
                 //anade la secuencia a la familia de secuencias concatenadas
                 concat_values.Add(l);
                 //ir actualizando el largo de la secuencia
-                concat_sequence.Count += l.Count;
+                //concat_sequence.Count += l.Count;
                 //si la secuencia actual esta concatenada con undefined, anadir a la lista 
                 if (is_undefined_concat.Contains(i)) concat_sequence.is_undefined_concat.Add(i);
             }
@@ -1374,7 +1485,7 @@ namespace G_Wall_E
                 //anade la secuencia a la familia de secuencias concatenadas
                 concat_values.Add(l);
                 //ir actualizando el largo d la secuencia
-                concat_sequence.Count += l.Count;
+                //concat_sequence.Count += l.Count;
                 //si la secuencia actual esta concatenada con undefined, anadir a la lista 
                 //si una secuencia esta sumada n veces con undefined, contara como que esta concatenada una sola vez
                 if (s.is_undefined_concat.Contains(i)) concat_sequence.is_undefined_concat.Add(concat_values.Count - 1);
@@ -1387,14 +1498,12 @@ namespace G_Wall_E
 
             return concat_sequence;
         }
-
         public void GrowSequence() //metodo para anadir uno mas a la secuencia infinita
         {
             int index = values.Count - 1;
             double i = values[index][values[index].Count - 1];
             values[index].Add(i + 1);
         }
-
         public Node Return_Global_Var(Node node) //metodo que guarda en variables sus valores
         {
             //creo el nodo familia de variables
@@ -1404,21 +1513,35 @@ namespace G_Wall_E
             //itero por las variables
             foreach (Node child in node.Children)
             {
-                if (child.Value.ToString() == "_")
-                {
-                    if (j < values[i].Count || is_undefined_concat.Contains(i)) j++;
-                    continue;
-                }
                 //su nombre
                 string name = child.Value.ToString();
                 //su valor en la sequencia
                 dynamic var_value = null;
 
-                if (is_undefined || j == values[i].Count) var_value = "undefined";
+                if (is_undefined)
+                {
+                    var_value = "undefined";
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                } 
 
+                //si no alcanzo secuencia para el valor de la variable asignarle una secuencia vacua
                 else if (node.Children.Last() == child && i > values.Count() - 1)
                 {
-                    var_value = new IntSequence(false);
+                    var_value = new LineSequence(false);
+                    continue;
+                }
+
+                else if(i > values.Count() - 1)
+                {
+                    var_value = "undefined";
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                }
+
+                if (child.Value.ToString() == "_")
+                {
+                    if (j < values[i].Count || is_undefined_concat.Contains(i)) j++;
                     continue;
                 }
 
@@ -1462,6 +1585,8 @@ namespace G_Wall_E
 
                     //darle el valor de la sequencia
                     var_value = s;
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    break;
                 }
 
                 //si la secuencia es infinita y es el ultimo hijo
@@ -1508,7 +1633,15 @@ namespace G_Wall_E
         public string? name { get; set; }
         public bool is_infinite { get; set; }
         public bool is_undefined { get; set; }
-        public int Count { get; set; }
+        public int Count   //define la cantidad de elementos que tiene la secuencia 
+        {
+            get
+            {
+                int count = 0;
+                foreach(var x in values) foreach(var y in x) count++;
+                return count;
+            }
+        }
         public List<int> is_undefined_concat { get; set; }
 
         public FloatSequence(bool is_undefined)
@@ -1520,23 +1653,18 @@ namespace G_Wall_E
         public FloatSequence(List<float> values) //
         {
             this.values = new List<List<float>>() { values };
-            Count = values.Count;
+            //Count = values.Count;
             is_undefined_concat = new List<int>();
         }
         public FloatSequence(List<List<float>> values) //constructor para la lista de secuencias, usado en concatenacion
         {
             this.values = values;
-            Count = 0;
-            foreach (var x in values)
+           // Count = 0;
+            /*foreach (var x in values)
             {
                 foreach (var y in x) Count++;
-            }
+            }*/
             is_undefined_concat = new List<int>();
-        }
-        public FloatSequence(List<float> values, string name)
-        {
-            this.name = name;
-            this.values = new List<List<float>>() { values };
         }
         public FloatSequence() // 
         {
@@ -1545,11 +1673,11 @@ namespace G_Wall_E
             int count = 0;
             while (count < 10)
             {
-                l.Add(new Random().Next() % 1);
+                l.Add((float)new Random().NextDouble());
                 count++;
             }
             values = new List<List<float>>() { l };
-            Count = l.Count;
+            //Count = l.Count;
             is_undefined_concat = new List<int>();
         }
 
@@ -1571,7 +1699,7 @@ namespace G_Wall_E
                 //anade la secuencia a la familia de secuencias concatenadas
                 concat_values.Add(l);
                 //ir actualizando el largo de la secuencia
-                concat_sequence.Count += l.Count;
+                //concat_sequence.Count += l.Count;
                 //si la secuencia actual esta concatenada con undefined, anadir a la lista 
                 if (is_undefined_concat.Contains(i)) concat_sequence.is_undefined_concat.Add(i);
             }
@@ -1589,7 +1717,7 @@ namespace G_Wall_E
                 //anade la secuencia a la familia de secuencias concatenadas
                 concat_values.Add(l);
                 //ir actualizando el largo d la secuencia
-                concat_sequence.Count += l.Count;
+                //concat_sequence.Count += l.Count;
                 //si la secuencia actual esta concatenada con undefined, anadir a la lista 
                 //si una secuencia esta sumada n veces con undefined, contara como que esta concatenada una sola vez
                 if (s.is_undefined_concat.Contains(i)) concat_sequence.is_undefined_concat.Add(concat_values.Count - 1);
@@ -1607,20 +1735,35 @@ namespace G_Wall_E
             //itero por las variables
             foreach (Node child in node.Children)
             {
-                if (child.Value.ToString() == "_")
-                {
-                    if (j < values[i].Count || is_undefined_concat.Contains(i)) j++;
-                    continue;
-                }
                 //su nombre
                 string name = child.Value.ToString();
                 //su valor en la sequencia
                 dynamic var_value;
-                if (is_undefined || j == values[i].Count) var_value = "undefined";
 
+                if (is_undefined)
+                {
+                    var_value = "undefined";
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                } 
+
+                //si no alcanzo secuencia para el valor de la variable asignarle una secuencia vacua
                 else if (node.Children.Last() == child && i > values.Count() - 1)
                 {
-                    var_value = new IntSequence(false);
+                    var_value = new LineSequence(false);
+                    continue;
+                }
+
+                else if(i > values.Count() - 1)
+                {
+                    var_value = "undefined";
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                }
+
+                if (child.Value.ToString() == "_")
+                {
+                    if (j < values[i].Count || is_undefined_concat.Contains(i)) j++;
                     continue;
                 }
 
@@ -1652,6 +1795,9 @@ namespace G_Wall_E
 
                     //darle el valor de la sequencia
                     var_value = s;
+                    //lo anado al nodo de familia de variables
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    break;
                 }
 
                 else var_value = values[i][j];
