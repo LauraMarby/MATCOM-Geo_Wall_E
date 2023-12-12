@@ -477,15 +477,15 @@ namespace INTERPRETE_C__to_HULK
 
 					if (f_f == 1) return Points_Methods.Points((Point)f);
 
-					else if (f_f == 2) return Points_Methods.Points((Line)f);
+					else if (f_f == 2) return Points_Methods.Points((Line)f, FigureColor);
 
-					else if (f_f == 3) return Points_Methods.Points((Segment)f);
+					else if (f_f == 3) return Points_Methods.Points((Segment)f, FigureColor);
 
-					else if (f_f == 4) return Points_Methods.Points((Ray)f);
+					else if (f_f == 4) return Points_Methods.Points((Ray)f, FigureColor);
 
-					else if (f_f == 5) return Points_Methods.Points((Arc)f);
+					else if (f_f == 5) return Points_Methods.Points((Arc)f, FigureColor);
 
-					else if (f_f == 6) return Points_Methods.Points((Circle)f);
+					else if (f_f == 6) return Points_Methods.Points((Circle)f, FigureColor);
 
 					else Input_Error("Invalid param in poins method call");
 					break;
@@ -515,15 +515,15 @@ namespace INTERPRETE_C__to_HULK
 
 					else if (f_f1 == 2)
 					{
-						if (f_f2 == 2) return Intersect_Methods.Intersect((Line)f1, (Line)f2);
+						if (f_f2 == 2) return Intersect_Methods.Intersect((Line)f1, (Line)f2 , FigureColor);
 
-						else if (f_f2 == 3) return Intersect_Methods.Intersect((Line)f1, (Segment)f2);
+						else if (f_f2 == 3) return Intersect_Methods.Intersect((Line)f1, (Segment)f2 , FigureColor);
 
-						else if (f_f2 == 4) return Intersect_Methods.Intersect((Line)f1, (Ray)f2);
+						else if (f_f2 == 4) return Intersect_Methods.Intersect((Line)f1, (Ray)f2 , FigureColor);
 
-						else if (f_f2 == 5) return Intersect_Methods.Intersect((Line)f1, (Arc)f2);
+						else if (f_f2 == 5) return Intersect_Methods.Intersect((Line)f1, (Arc)f2 , FigureColor);
 
-						else if (f_f2 == 6) return Intersect_Methods.Intersect((Line)f1, (Circle)f2);
+						else if (f_f2 == 6) return Intersect_Methods.Intersect((Line)f1, (Circle)f2 , FigureColor);
 
 						else Input_Error("Invalid parameters in intersect call");
 						break;
@@ -531,13 +531,13 @@ namespace INTERPRETE_C__to_HULK
 
 					else if (f_f1 == 3)
 					{
-						if (f_f2 == 3) return Intersect_Methods.Intersect((Segment)f1, (Segment)f2);
+						if (f_f2 == 3) return Intersect_Methods.Intersect((Segment)f1, (Segment)f2 , FigureColor);
 
-						else if (f_f2 == 4) return Intersect_Methods.Intersect((Segment)f1, (Ray)f2);
+						else if (f_f2 == 4) return Intersect_Methods.Intersect((Segment)f1, (Ray)f2 , FigureColor);
 
-						else if (f_f2 == 5) return Intersect_Methods.Intersect((Segment)f1, (Arc)f2);
+						else if (f_f2 == 5) return Intersect_Methods.Intersect((Segment)f1, (Arc)f2 , FigureColor);
 
-						else if (f_f2 == 6) return Intersect_Methods.Intersect((Segment)f1, (Circle)f2);
+						else if (f_f2 == 6) return Intersect_Methods.Intersect((Segment)f1, (Circle)f2 , FigureColor);
 
 						else Input_Error("Invalid parameters in intersect call");
 						break;
@@ -545,11 +545,11 @@ namespace INTERPRETE_C__to_HULK
 
 					else if (f_f1 == 4)
 					{
-						if (f_f2 == 4) return Intersect_Methods.Intersect((Ray)f1, (Ray)f2);
+						if (f_f2 == 4) return Intersect_Methods.Intersect((Ray)f1, (Ray)f2 , FigureColor);
 
-						else if (f_f2 == 5) return Intersect_Methods.Intersect((Ray)f1, (Arc)f2);
+						else if (f_f2 == 5) return Intersect_Methods.Intersect((Ray)f1, (Arc)f2 , FigureColor);
 
-						else if (f_f2 == 6) return Intersect_Methods.Intersect((Ray)f1, (Circle)f2);
+						else if (f_f2 == 6) return Intersect_Methods.Intersect((Ray)f1, (Circle)f2 , FigureColor);
 
 						else Input_Error("Invalid parameters in intersect call");
 						break;
@@ -557,9 +557,9 @@ namespace INTERPRETE_C__to_HULK
 
 					else if (f_f1 == 5)
 					{
-						if (f_f2 == 5) return Intersect_Methods.Intersect((Arc)f1, (Arc)f2);
+						if (f_f2 == 5) return Intersect_Methods.Intersect((Arc)f1, (Arc)f2 , FigureColor);
 
-						else if (f_f2 == 6) return Intersect_Methods.Intersect((Arc)f1, (Circle)f2);
+						else if (f_f2 == 6) return Intersect_Methods.Intersect((Arc)f1, (Circle)f2 , FigureColor);
 
 						else Input_Error("Invalid parameters in intersect call");
 						break;
@@ -567,7 +567,7 @@ namespace INTERPRETE_C__to_HULK
 
 					else if (f_f1 == 6)
 					{
-						if (f_f2 == 6) return Intersect_Methods.Intersect((Circle)f1, (Circle)f2);
+						if (f_f2 == 6) return Intersect_Methods.Intersect((Circle)f1, (Circle)f2 , FigureColor);
 
 						else Input_Error("Invalid parameters in intersect call");
 						break;
@@ -832,87 +832,170 @@ namespace INTERPRETE_C__to_HULK
 				//secuencia de llaves con elemento divididos por coma
 				case "sequence":
 					var sec_l = new List<object>();
+
 					foreach (Node child in node.Children) sec_l.Add(Evaluate(child));
-					int sequence_type = IsKind_Seq(Evaluate(node.Children[0]));
-					switch (sequence_type)
+
+					object sec = Evaluate(node.Children[0]);
+					int sequence_type_1 = IsKind_Seq(sec);
+					(bool o, int sequence_Type_2) = IsSequence(sec);
+
+					//si es solo una secuencia de valores simples, proseguir
+					if (!o) switch (sequence_type_1)
+						{
+							//si es una secuencia de puntos, generarla
+							case 1:
+								List<Point> p_l = new List<Point>();
+								TryConvert(sec_l, p_l);
+								PointSequence ps = new PointSequence(p_l);
+
+								//Scopes[Scopes.Count - 1].Add("", ps);
+								return ps;
+							//si es una secuencia de lineas, generarla
+							case 2:
+								List<Line> l_l = new List<Line>();
+								TryConvert(sec_l, l_l);
+								LineSequence ls = new LineSequence(l_l);
+								//Scopes[Scopes.Count - 1].Add("", ls);
+
+								return ls;
+							//si es una secuencia de segmentos, generarla
+							case 3:
+								List<Segment> segm_l = new List<Segment>();
+								TryConvert(sec_l, segm_l);
+								SegmentSequence seg_s = new SegmentSequence(segm_l);
+								//Scopes[Scopes.Count - 1].Add("", seg_s);
+
+								return seg_s;
+							//si es una secuencia de rayos, generarla
+							case 4:
+								List<Ray> r_l = new List<Ray>();
+								TryConvert(sec_l, r_l);
+								RaySequence rs = new RaySequence(r_l);
+								//Scopes[Scopes.Count - 1].Add("", rs);
+
+								return rs;
+							//si es una secuencia de arcos, generarla
+							case 5:
+								List<Arc> a_l = new List<Arc>();
+								TryConvert(sec_l, a_l);
+								ArcSequence arc_s = new ArcSequence(a_l);
+								//Scopes[Scopes.Count - 1].Add("", arc_s);
+
+								return arc_s;
+							//si es una secuencia de circunferencias, generarla
+							case 6:
+								List<Circle> c_l = new List<Circle>();
+								TryConvert(sec_l, c_l);
+								CircleSequence cs = new CircleSequence(c_l);
+								//Scopes[Scopes.Count - 1].Add("", cs);
+
+								return cs;
+							//si es una secuencia de enteros, generarla
+							case 8:
+								List<double> i_l = new List<double>();
+								TryConvert(sec_l, i_l);
+								IntSequence i_s = new IntSequence(i_l);
+								//Scopes[Scopes.Count - 1].Add("", i_s);
+
+								return i_s;
+							//si es una secuencia de flotantes, generarla
+							case 9:
+								List<float> f_l = new List<float>();
+								TryConvert(sec_l, f_l);
+								FloatSequence f_s = new FloatSequence(f_l);
+								//Scopes[Scopes.Count - 1].Add("", f_s);
+
+								return f_s;
+							//si es una secuencia de string, generarla
+							case 7:
+								List<string> string_l = new List<string>();
+								TryConvert(sec_l, string_l);
+								StringSequence string_s = new StringSequence(string_l);
+								//Scopes[Scopes.Count - 1].Add("", string_s);
+
+								return string_s;
+							//si no es ninguna de las anteriores, devolver error
+							default:
+								Input_Error("This is not a valid sequence type");
+								break;
+						}
+					//si es una secuencia de secuencias, evaluar el tipo de secuencia de cada una y devolver la concatenacion de todos ellos
+					else
 					{
-						//si es una secuencia de puntos, generarla
-						case 1:
-							List<Point> p_l = new List<Point>();
+						if (sequence_Type_2 == 1)
+						{
+							PointSequence s = new PointSequence(false);
+							List<PointSequence> p_l = new List<PointSequence>();
 							TryConvert(sec_l, p_l);
-							PointSequence ps = new PointSequence(p_l);
-
-							//Scopes[Scopes.Count - 1].Add("", ps);
-							return ps;
-						//si es una secuencia de lineas, generarla
-						case 2:
-							List<Line> l_l = new List<Line>();
-							TryConvert(sec_l, l_l);
-							LineSequence ls = new LineSequence(l_l);
-							//Scopes[Scopes.Count - 1].Add("", ls);
-
-							return ls;
-						//si es una secuencia de segmentos, generarla
-						case 3:
-							List<Segment> segm_l = new List<Segment>();
-							TryConvert(sec_l, segm_l);
-							SegmentSequence seg_s = new SegmentSequence(segm_l);
-							//Scopes[Scopes.Count - 1].Add("", seg_s);
-
-							return seg_s;
-						//si es una secuencia de rayos, generarla
-						case 4:
-							List<Ray> r_l = new List<Ray>();
-							TryConvert(sec_l, r_l);
-							RaySequence rs = new RaySequence(r_l);
-							//Scopes[Scopes.Count - 1].Add("", rs);
-
-							return rs;
-						//si es una secuencia de arcos, generarla
-						case 5:
-							List<Arc> a_l = new List<Arc>();
-							TryConvert(sec_l, a_l);
-							ArcSequence arc_s = new ArcSequence(a_l);
-							//Scopes[Scopes.Count - 1].Add("", arc_s);
-
-							return arc_s;
-						//si es una secuencia de circunferencias, generarla
-						case 6:
-							List<Circle> c_l = new List<Circle>();
-							TryConvert(sec_l, c_l);
-							CircleSequence cs = new CircleSequence(c_l);
-							//Scopes[Scopes.Count - 1].Add("", cs);
-
-							return cs;
-						//si es una secuencia de enteros, generarla
-						case 8:
-							List<double> i_l = new List<double>();
-							TryConvert(sec_l, i_l);
-							IntSequence i_s = new IntSequence(i_l);
-							//Scopes[Scopes.Count - 1].Add("", i_s);
-
-							return i_s;
-						//si es una secuencia de flotantes, generarla
-						case 9:
-							List<float> f_l = new List<float>();
-							TryConvert(sec_l, f_l);
-							FloatSequence f_s = new FloatSequence(f_l);
-							//Scopes[Scopes.Count - 1].Add("", f_s);
-
-							return f_s;
-						//si es una secuencia de string, generarla
-						case 7:
-							List<string> string_l = new List<string>();
-							TryConvert(sec_l, string_l);
-							StringSequence string_s = new StringSequence(string_l);
-							//Scopes[Scopes.Count - 1].Add("", string_s);
-
-							return string_s;
-						//si no es ninguna de las anteriores, devolver error
-						default:
-							Input_Error("This is not a valid sequence type");
-							break;
+							foreach (var x in p_l) s = s.Concat(x);
+							return s;
+						}
+						else if (sequence_Type_2 == 2)
+						{
+							LineSequence s = new LineSequence(false);
+							List<LineSequence> p_l = new List<LineSequence>();
+							TryConvert(sec_l, p_l);
+							foreach (var x in p_l) s = s.Concat(x);
+							return s;
+						}
+						else if (sequence_Type_2 == 3)
+						{
+							SegmentSequence s = new SegmentSequence(false);
+							List<SegmentSequence> p_l = new List<SegmentSequence>();
+							TryConvert(sec_l, p_l);
+							foreach (var x in p_l) s = s.Concat(x);
+							return s;
+						}
+						else if (sequence_Type_2 == 4)
+						{
+							RaySequence s = new RaySequence(false);
+							List<RaySequence> p_l = new List<RaySequence>();
+							TryConvert(sec_l, p_l);
+							foreach (var x in p_l) s = s.Concat(x);
+							return s;
+						}
+						else if (sequence_Type_2 == 5)
+						{
+							ArcSequence s = new ArcSequence(false);
+							List<ArcSequence> p_l = new List<ArcSequence>();
+							TryConvert(sec_l, p_l);
+							foreach (var x in p_l) s = s.Concat(x);
+							return s;
+						}
+						else if (sequence_Type_2 == 6)
+						{
+							CircleSequence s = new CircleSequence(false);
+							List<CircleSequence> p_l = new List<CircleSequence>();
+							TryConvert(sec_l, p_l);
+							foreach (var x in p_l) s = s.Concat(x);
+							return s;
+						}
+						else if (sequence_Type_2 == 7)
+						{
+							StringSequence s = new StringSequence(false);
+							List<StringSequence> p_l = new List<StringSequence>();
+							TryConvert(sec_l, p_l);
+							foreach (var x in p_l) s = s.Concat(x);
+							return s;
+						}
+						else if (sequence_Type_2 == 8)
+						{
+							IntSequence s = new IntSequence(false);
+							List<IntSequence> p_l = new List<IntSequence>();
+							TryConvert(sec_l, p_l);
+							foreach (var x in p_l) s = s.Concat(x);
+							return s;
+						}
+						else
+						{
+							FloatSequence s = new FloatSequence(false);
+							List<FloatSequence> p_l = new List<FloatSequence>();
+							TryConvert(sec_l, p_l);
+							foreach (var x in p_l) s = s.Concat(x);
+							return s;
+						}
 					}
+
 					break;
 				//secuencia de llaves con elementos divididos por puntos suspensitvos
 				case "inf_sequence":
@@ -1153,6 +1236,14 @@ namespace INTERPRETE_C__to_HULK
 			if (objectt is FloatSequence) return (true, 9);
 			return (false, 0);
 		}
+
+		/*private void Evaluate_Sequences_Inside_A_Sequence<T>(ISequence<T> sequence, List<ISequence<T>> list)
+		{
+			foreach(var x in list)
+			{
+				sequence = sequence.Concat(x);
+			}
+		}*/
 
 		private void Draw_Sequence<T>(ISequence<T> s)
 		{

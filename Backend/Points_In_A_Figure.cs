@@ -15,35 +15,9 @@ namespace G_Wall_E
         }
 
         //linea
-        public static PointSequence Points(Line p)
+        public static PointSequence Points(Line p, string color)
         {
-            var random = new Random();
-            List<Point> list = new List<Point>();
-
-            var x_min = Math.Min(p.P1.X, p.P2.X);
-            var x_max = Math.Max(p.P1.X, p.P2.X);
-
-            var y_min = Math.Min(p.P1.Y, p.P2.Y);
-            var y_max = Math.Max(p.P1.Y, p.P2.Y);
-
-            int count = 0;
-
-            while (count < 5)
-            {
-                int x = random.Next((int)x_min, (int)x_max);
-                int y = random.Next((int)y_min, (int)y_max);
-
-                if (Intersect_Methods.Point_Line(new Point("", "black", x, y), p.P1, p.P2))
-                {
-                    list.Add(new Point("", "black", x, y));
-                    count++;
-                }
-                else continue;
-            }
-
-            return new PointSequence(list);
-
-            /*PointSequence ret = new PointSequence(new List<Point>() { });
+            PointSequence ret = new PointSequence(new List<Point>() { });
 
             var random = new Random();
 
@@ -53,86 +27,39 @@ namespace G_Wall_E
             {
                 double x = p.P1.X + random.NextDouble() * (p.P2.X - p.P1.X);
                 double y = (p.P2.Y - p.P1.Y) / (p.P2.X - p.P1.X) * (x - p.P1.X) + p.P1.Y;
-                list.Add(new Point("random", "black", x, y));
+                list.Add(new Point("random", color, x, y));
             }
 
             ret.values.Add(list);
 
-            return ret;*/
+            return ret;
         }
 
         //segmento
-        public static PointSequence Points(Segment p)
+        public static PointSequence Points(Segment p, string color)
         {
+            PointSequence ret = new PointSequence(new List<Point>() { });
+
             var random = new Random();
+
             List<Point> list = new List<Point>();
 
-            var x_min = Math.Min(p.P1.X, p.P2.X);
-            var x_max = Math.Max(p.P1.X, p.P2.X);
-
-            var y_min = Math.Min(p.P1.Y, p.P2.Y);
-            var y_max = Math.Max(p.P1.Y, p.P2.Y);
-
-            int count = 0;
-
-            while (count < 5)
-            {
-                int x = random.Next((int)x_min, (int)x_max);
-                int y = random.Next((int)y_min, (int)y_max);
-
-                if (Intersect_Methods.Point_Line(new Point("", "black", x, y), p.P1, p.P2))
-                {
-                    list.Add(new Point("", "black", x, y));
-                    count++;
-                }
-                else continue;
-            }
-
-            return new PointSequence(list);
-
-            /*PointSequence ret = new PointSequence(new List<Point>() { });
-            var random = new Random();
-            List<Point> list = new List<Point>();
             for (int i = 0; i < 5; i++)
             {
-                double x = p.P1.X + (p.P2.X - p.P1.X) * random.NextDouble();
-                double y = p.P1.Y + (p.P2.Y - p.P1.Y) * random.NextDouble();
-                list.Add(new Point("random", "black", x, y));
+                double x = p.P1.X + random.NextDouble() * (p.P2.X - p.P1.X);
+                double y = (p.P2.Y - p.P1.Y) / (p.P2.X - p.P1.X) * (x - p.P1.X) + p.P1.Y;
+                list.Add(new Point("random", color, x, y));
             }
+
             ret.values.Add(list);
-            return ret;*/
+
+            return ret;
         }
 
         //rayo
-        public static PointSequence Points(Ray p)
+        public static PointSequence Points(Ray p, string color)
         {
-            var random = new Random();
-            List<Point> list = new List<Point>();
-
-            var x_min = Math.Min(p.P1.X, p.P2.X);
-            var x_max = Math.Max(p.P1.X, p.P2.X);
-
-            var y_min = Math.Min(p.P1.Y, p.P2.Y);
-            var y_max = Math.Max(p.P1.Y, p.P2.Y);
-
-            int count = 0;
-
-            while (count < 5)
-            {
-                int x = random.Next((int)x_min, (int)x_max);
-                int y = random.Next((int)y_min, (int)y_max);
-
-                if (Intersect_Methods.Point_Line(new Point("", "black", x, y), p.P1, p.P2))
-                {
-                    list.Add(new Point("", "black", x, y));
-                    count++;
-                }
-                else continue;
-            }
-
-            return new PointSequence(list);
-
-            /*PointSequence ret = new PointSequence(new List<Point>() { });
+            PointSequence ret = new PointSequence(new List<Point>() { });
             var random = new Random();
             List<Point> list = new List<Point>();
             for (int i = 0; i < 5; i++)
@@ -140,48 +67,18 @@ namespace G_Wall_E
                 double t = (double)random.NextDouble();
                 double x = p.P1.X + t * (p.P2.X - p.P1.X);
                 double y = p.P1.Y + t * (p.P2.Y - p.P1.Y);
-                list.Add(new Point("random", "black", x, y));
+                list.Add(new Point("random", color, x, y));
             }
             ret.values.Add(list);
-            return ret;*/
+            return ret;
         }
 
         //arco
-        public static PointSequence Points(Arc p)
+        public static PointSequence Points(Arc p, string color)
         {
-            var random = new Random();
-            List<Point> list = new List<Point>();
-            var radius = p.Distance.Execute();
-
-            var x_min_ = Math.Min(p.P1.X, p.P2.X);
-            var x_min = Math.Min(x_min_, p.P3.X);
-            var x_max_ = Math.Max(p.P1.X, p.P2.X);
-            var x_max = Math.Min(x_max_, p.P3.X);
-
-            var y_min_ = Math.Min(p.P1.Y, p.P2.Y);
-            var y_min = Math.Min(y_min_, p.P3.Y);
-            var y_max_ = Math.Max(p.P1.Y, p.P2.Y);
-            var y_max = Math.Max(y_max_, p.P3.Y);
-
-            int count = 0;
-
-            while (count < 5)
+            bool EstaDentroDelArco(Point p, Arc a)
             {
-                int x = random.Next((int)x_min, (int)x_max);
-                int y = random.Next((int)y_min, (int)y_max);
-
-                if (Intersect_Methods.Point_Circle(new Point("", "black", x, y), p.P1, radius))
-                {
-                    list.Add(new Point("", "black", x, y));
-                    count++;
-                }
-                else continue;
-            }
-
-            return new PointSequence(list);
-
-            /*bool EstaDentroDelArco(Point p, Arc a)
-            {
+                var radius = a.Distance.Execute();
                 // Calcular el ángulo de la línea que conecta el centro del arco con el punto
                 double dx = p.X - a.P1.X;
                 double dy = p.Y - a.P1.Y;
@@ -198,7 +95,7 @@ namespace G_Wall_E
                     double distance = Math.Sqrt(dx * dx + dy * dy);
 
                     // Si la distancia es igual al radio del arco, hay una intersección
-                    if (distance <= a.Distance.Value)
+                    if (distance <= radius)
                     {
                         return true;
                     }
@@ -206,19 +103,20 @@ namespace G_Wall_E
                 // Si llegamos aquí, no hay intersección
                 return false;
             }
+            var radius = p.Distance.Execute();
             PointSequence ret = new PointSequence(new List<Point>() { });
             var random = new Random();
             List<Point> list = new List<Point>();
             for (int i = 0; i < 5; i++)
             {
                 double angulo = random.NextDouble() * 2 * Math.PI; // Genera un ángulo aleatorio entre 0 y 2*PI
-                double x = p.P1.X + p.Distance.Value * Math.Cos(angulo); // Calcula la coordenada x del punto
-                double y = p.P1.Y + p.Distance.Value * Math.Sin(angulo); // Calcula la coordenada y del punto
+                double x = p.P1.X + radius * Math.Cos(angulo); // Calcula la coordenada x del punto
+                double y = p.P1.Y + radius * Math.Sin(angulo); // Calcula la coordenada y del punto
 
                 // Asegúrate de que el punto generado está dentro del arco
-                if (EstaDentroDelArco(new Point("random", "black", x, y), p))
+                if (EstaDentroDelArco(new Point("random", color, x, y), p))
                 {
-                    list.Add(new Point("random", "black", x, y));
+                    list.Add(new Point("random", color, x, y));
                 }
                 else
                 {
@@ -226,37 +124,29 @@ namespace G_Wall_E
                 }
             }
             ret.values.Add(list);
-            return ret;*/
+            return ret;
         }
 
         //circunferencia
-        public static PointSequence Points(Circle p)
+        public static PointSequence Points(Circle p, string color)
         {
-            var random = new Random();
-            List<Point> list = new List<Point>();
             var radius = p.Radius.Execute();
 
-            list.Add(new Point("", "black", p.P1.X, p.P1.Y + radius));
-            list.Add(new Point("", "black", p.P1.X, p.P1.Y - radius));
-            list.Add(new Point("", "black", p.P1.X + radius, p.P1.Y));
-            list.Add(new Point("", "black", p.P1.X - radius, p.P1.Y));
-
-            return new PointSequence(list);
-
-
-
-            /*PointSequence ret = new PointSequence(new List<Point>() { });
+            PointSequence ret = new PointSequence(new List<Point>() { });
             var random = new Random();
             List<Point> list = new List<Point>();
+
             for (int i = 0; i < 5; i++)
             {
                 double angle = 2.0 * Math.PI * random.NextDouble();
-                double x = p.P1.X + p.Radius.Value * Math.Cos(angle);
-                double y = p.P1.Y + p.Radius.Value * Math.Sin(angle);
-                list.Add(new Point("random", "black", x, y));
+                double x = p.P1.X + radius * Math.Cos(angle);
+                double y = p.P1.Y + radius * Math.Sin(angle);
+
+                list.Add(new Point("random", color, x, y));
             }
+
             ret.values.Add(list);
-            return ret;*/
+            return ret;
         }
     }
 }

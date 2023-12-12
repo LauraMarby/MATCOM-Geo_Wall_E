@@ -46,7 +46,7 @@ public partial class Drawing_Area : Panel
 				if (m1 < 0) angle_1 += (float)Math.PI;
 				if (m2 < 0) angle_2 += (float)Math.PI;
 
-				DrawArc(new Vector2((float)f.P1.X, (float)f.P1.Y), (float)f.Radius, angle_1, angle_2, 200, Paint(f.Color));
+				DrawArc(new Vector2((float)f.P1.X, (float)f.P1.Y), (float)f.Radius, angle_1, angle_2, 2, Paint(f.Color));
 				text = f.Msg;
 				if (text is not null) DrawString(font, new Vector2((float)f.P1.X, (float)f.P1.Y), text, HorizontalAlignment.Left, 200, 200, Colors.White);
 			}

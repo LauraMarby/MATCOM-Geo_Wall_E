@@ -53,20 +53,8 @@ namespace G_Wall_E
             //si esta dentro de la recta
             if (Point_Line(p, r.P1, r.P2))
             {
-                bool acot_x = false; //si esta en le rango de las x
-                bool acot_y = false; //si esta en le rango de las y
-
-                //si el rayo se desplaza hacia la izquierda 
-                if (r.P1.X > r.P2.X && p.X <= r.P1.X) acot_x = true;
-                //si el rayo se desplaza hacia la derecha
-                else if (r.P1.X < r.P2.X && p.X >= r.P1.X) acot_x = true;
-                //si el rayo se desplaza hacia abajo
-                if (r.P1.Y > r.P2.Y && p.Y <= r.P1.Y) acot_y = true;
-                //si el rayo se desplaza hacia arriba
-                else if (r.P1.Y < r.P2.Y && p.Y >= r.P1.Y) acot_y = true;
-
                 //si esta acotada, es intercepto
-                if (acot_x && acot_y) return new PointSequence(new List<Point>() { p });
+                if (Ray_Acot(r, p.X, p.Y)) return new PointSequence(new List<Point>() { p });
                 //si no lo esta, no lo es
                 else return new PointSequence(new List<Point>());
             }
@@ -108,7 +96,7 @@ namespace G_Wall_E
 
         //LINEAS
         //con linea
-        public static PointSequence Intersect(Line l1, Line l2)
+        public static PointSequence Intersect(Line l1, Line l2, string color)
         {
             //hallando ecuación de la recta
             var l1_m = ((l1.P2.Y - l1.P1.Y) / (l1.P2.X - l1.P1.X));
@@ -129,12 +117,12 @@ namespace G_Wall_E
             {
                 var xr = (l2_n - l1_n) / (l1_m - l2_m);
                 var yr = l1_m * xr + l1_n;
-                return new PointSequence(new List<Point>() { new Point("_intersect_", "black", xr, yr) });
+                return new PointSequence(new List<Point>() { new Point("_intersect_", color, xr, yr) });
             }
         }
 
         //con segmento
-        public static PointSequence Intersect(Line l, Segment s)
+        public static PointSequence Intersect(Line l, Segment s, string color)
         {
             //hallando la ecuacion de la recta
             var l_m = ((l.P2.Y - l.P1.Y) / (l.P2.X - l.P1.X));
@@ -166,7 +154,7 @@ namespace G_Wall_E
                 //si esta acotada intercepta
                 if (Is_Acot(xr, x_min, x_max) && Is_Acot(yr, y_min, y_max))
                 {
-                    return new PointSequence(new List<Point>() { new Point("_intersect_", "black", xr, yr) });
+                    return new PointSequence(new List<Point>() { new Point("_intersect_", color, xr, yr) });
                 }
                 //no esta acotada
                 else return new PointSequence(new List<Point>());
@@ -174,7 +162,7 @@ namespace G_Wall_E
         }
 
         //con rayo
-        public static PointSequence Intersect(Line l, Ray r)
+        public static PointSequence Intersect(Line l, Ray r, string color)
         {
             //hallando ecuacion de la recta
             var l_m = ((l.P2.Y - l.P1.Y) / (l.P2.X - l.P1.X));
@@ -196,88 +184,94 @@ namespace G_Wall_E
                 var xr = (r_n - l_n) / (l_m - r_m);
                 var yr = l_m * xr + l_n;
 
-                bool acot_x = false; //si esta en le rango de las x
-                bool acot_y = false; //si esta en le rango de las y
-
-                //si el rayo se desplaza hacia la izquierda 
-                if (r.P1.X > r.P2.X && xr <= r.P1.X) acot_x = true;
-                //si el rayo se desplaza hacia la derecha
-                else if (r.P1.X < r.P2.X && xr >= r.P1.X) acot_x = true;
-                //si el rayo se desplaza hacia abajo
-                if (r.P1.Y > r.P2.Y && yr <= r.P1.Y) acot_y = true;
-                //si el rayo se desplaza hacia arriba
-                else if (r.P1.Y < r.P2.Y && yr >= r.P1.Y) acot_y = true;
-
                 //si esta acotada, es intercepto
-                if (acot_x && acot_y) return new PointSequence(new List<Point>() { new Point("_intersect_", "black", xr, yr) });
+                if (Ray_Acot(r, xr, yr)) return new PointSequence(new List<Point>() { new Point("_intersect_", color, xr, yr) });
                 //si no lo esta, no lo es
                 else return new PointSequence(new List<Point>());
             }
         }
 
         //con arco
-        public static PointSequence Intersect(Line l, Arc a)
+        public static PointSequence Intersect(Line l, Arc a , string color)
         {
-            //hallando vector de direccion de la recta
-            var dx = l.P2.X - l.P1.X;
-            var dy = l.P2.Y - l.P1.Y;
-            //hallando ecuación paramétrica de la recta
-            var A = dx * dx + dy * dy;
-            var B = 2 * (dx * (l.P1.X - a.P1.X) + dy * (l.P1.Y - a.P1.Y));
-            var C = Math.Pow(l.P1.X - a.P1.X, 2) + Math.Pow(l.P1.Y - a.P1.Y, 2) - Math.Pow(a.Distance.Value, 2);
-            //calculando determinante
-            var det = B * B - 4 * A * C;
-            //no intersecta en ningún punto
-            if (det < 0) return new PointSequence(new List<Point>());
-            //intersecta en un solo punto
-            else if (det == 0)
+            var radius = a.Distance.Execute();
+            List<Point> Result = new List<Point>();
+
+            //hallar la acotacion del arco en x
+            var x_min = Math.Min(a.P3.X, a.P2.X);
+            var x_max = Math.Max(a.P3.X, a.P2.X);
+            //hallar la acotacion del arco en y
+            var y_min = Math.Min(a.P3.Y, a.P2.Y);
+            var y_max = Math.Max(a.P3.Y, a.P2.Y);
+
+            //Si la distancia del centro a la recta es mayor que el radio, no hay intersección
+            if (Distancia_Punto_Recta(a.P1, l.P1, l.P2) > radius)
             {
-                var t = -B / (2 * A);
-                return Intersect(new Point("_intersection_", "black", l.P1.X + t * dx, l.P1.Y + t * dy), a);
+                return new PointSequence(new List<Point>());
             }
-            //intersecta en dos puntos
+
+            //Si la distancia del punto a la recta es igual o menor al radio, se intersectan en un solo punto o en dos
             else
             {
-                var t1 = (-B + Math.Sqrt(det)) / (2 * A);
-                var t2 = (-B - Math.Sqrt(det)) / (2 * A);
-                PointSequence P_1 = Intersect(new Point("_intersection_", "black", l.P1.X + t1 * dx, l.P1.Y + t1 * dy), a);
-                PointSequence P_2 = Intersect(new Point("_intersection_", "black", l.P1.X + t2 * dx, l.P1.Y + t2 * dy), a);
-                if (P_1.Count == 0 && P_2.Count != 0) return P_2;
-                if (P_2.Count == 0 && P_1.Count != 0) return P_1;
-                if (P_2.Count == 0 && P_1.Count == 0) return P_1;
-                return P_1.Concat(P_2);
+                //Si no podemos calcular la pendiente por la via trivial, hay que hacerlo de otra forma
+                if (l.P2.X - l.P1.X == 0)
+                {
+                    double X = l.P1.X;
+                    if (Is_Acot(X, x_min, x_max))
+                    {
+                        double Y = a.P1.Y + Math.Sqrt((radius * radius) - ((X - a.P1.X) * (X - a.P1.X)));
+
+                        if (Is_Acot(Y, y_min, y_max)) Result.Add(new Point("_intersection_", color, X, Y));
+
+                        Y = a.P1.Y - Math.Sqrt((radius * radius) - ((X - a.P1.X) * (X - a.P1.X)));
+
+                        if (Is_Acot(Y, y_min, y_max)) Result.Add(new Point("_intersection_", color, X, Y));
+                    }
+
+                }
+                else
+                {
+                    //Hallando m y n
+                    double m = (l.P2.Y - l.P1.Y) / (l.P2.X - l.P1.X);
+                    double n = l.P2.Y - (m * l.P2.X);
+                    //Parametrizando
+                    double A = 1 + (m * m);
+                    double B = (2 * m * n) - (2 * a.P1.Y * m) - (2 * a.P1.X);
+                    double C = (a.P1.X * a.P1.X) + (a.P1.Y * a.P1.Y) - (radius * radius) - (2 * n * a.P1.Y) + (n * n);
+                    double Discriminante = (B * B) - (4 * A * C);
+                    //Si el dicriminante es 0, tiene una sola intersección
+                    if (Discriminante == 0)
+                    {
+                        double X = (-B) / (2 * A);
+                        double Y = (m * X) + n;
+                        if (Is_Acot(X, x_min, x_max) && Is_Acot(Y, y_min, y_max))
+                        {
+                            Result.Add(new Point("_intersection_", color, X, Y));
+                        }
+                    }
+                    //Si no es 0, tiene 2 intersecciones
+                    else
+                    {
+                        double X = ((-B) + Math.Sqrt(Discriminante)) / (2 * A);
+                        double Y = (m * X) + n;
+
+                        if (Is_Acot(X, x_min, x_max) && Is_Acot(Y, y_min, y_max)) Result.Add(new Point("_intersection_", color, X, Y));
+
+                        X = ((-B) - Math.Sqrt(Discriminante)) / (2 * A);
+                        Y = (m * X) + n;
+
+                        if (Is_Acot(X, x_min, x_max) && Is_Acot(Y, y_min, y_max)) Result.Add(new Point("_intersection_", color, X, Y));
+                    }
+                }
             }
+            return new PointSequence(Result);
         }
 
         //con circunferencia
-        public static PointSequence Intersect(Line l, Circle c)
+        public static PointSequence Intersect(Line l, Circle c , string color)
         {
-            /*//hallando vector de direccion de la recta
-            double dx = l.P2.X - l.P1.X;
-            double dy = l.P2.Y - l.P1.Y;
-            //hallando ecuación paramétrica de la recta
-            double A = dx * dx + dy * dy;
-            double B = 2 * (dx * (l.P1.X - c.P1.X) + dy * (l.P1.Y - c.P1.Y));
-            double C = Math.Pow((l.P1.X - c.P1.X), 2) + Math.Pow((l.P1.Y - c.P1.Y), 2) - Math.Pow(c.Radius.Value, 2);
-            //calculando determinante
-            double det = B * B - 4 * A * C;
-            //no intersecta en ningún punto
-            if (det < 0) return new PointSequence(new List<Point>());
-            //intersecta en un solo punto
-            else if (det == 0)
-            {
-                double t = -B / (2 * A);
-                return new PointSequence(new List<Point>() { new Point("_intersection_", "black", l.P1.X + t * dx, l.P1.Y + t * dy) });
-            }
-            //intersecta en dos puntos
-            else
-            {
-                double t1 = (-B + Math.Sqrt(det)) / (2 * A);
-                double t2 = (-B - Math.Sqrt(det)) / (2 * A);
-                return new PointSequence(new List<Point>() { new Point("_intersection_", "black", l.P1.X + t1 * dx, l.P1.Y + t1 * dy), new Point("_intersection_", "black", l.P1.X + t2 * dx, l.P1.Y + t2 * dy) });
-            }*/
-
             var radius = c.Radius.Execute();
+            List<Point> Result = new List<Point>();
 
             //Si la distancia del centro a la recta es mayor que el radio, no hay intersección
             if (Distancia_Punto_Recta(c.P1, l.P1, l.P2) > radius)
@@ -288,16 +282,14 @@ namespace G_Wall_E
             //Si la distancia del punto a la recta es igual o menor al radio, se intersectan en un solo punto o en dos
             else
             {
-                List<Point> Result = new List<Point>();
-
                 //Si no podemos calcular la pendiente por la via trivial, hay que hacerlo de otra forma
                 if (l.P2.X - l.P1.X == 0)
                 {
                     double X = l.P1.X;
                     double Y = c.P1.Y + Math.Sqrt((radius * radius) - ((X - c.P1.X) * (X - c.P1.X)));
-                    Result.Add(new Point("_intersect_", "black", X, Y));
+                    Result.Add(new Point("_intersection_", color, X, Y));
                     Y = c.P1.Y - Math.Sqrt((radius * radius) - ((X - c.P1.X) * (X - c.P1.X)));
-                    Result.Add(new Point("_intersect_", "black", X, Y));
+                    Result.Add(new Point("_intersection_", color, X, Y));
                 }
                 else
                 {
@@ -312,28 +304,28 @@ namespace G_Wall_E
                     //Si el dicriminante es 0, tiene una sola intersección
                     if (Discriminante == 0)
                     {
-                        double X = (-B) / 2 * A;
+                        double X = (-B) / (2 * A);
                         double Y = (m * X) + n;
-                        Result.Add(new Point("_intersect_", "black", X, Y));
+                        Result.Add(new Point("_intersection_", color, X, Y));
                     }
                     //Si no es 0, tiene 2 intersecciones
                     else
                     {
-                        double X = (-B) + Math.Sqrt(Discriminante) / 2 * A;
+                        double X = ((-B) + Math.Sqrt(Discriminante)) / (2 * A);
                         double Y = (m * X) + n;
-                        Result.Add(new Point("_intersect_", "black", X, Y));
-                        X = (-B) - Math.Sqrt(Discriminante) / 2 * A;
+                        Result.Add(new Point("_intersection_", color, X, Y));
+                        X = ((-B) - Math.Sqrt(Discriminante)) / (2 * A);
                         Y = (m * X) + n;
-                        Result.Add(new Point("_intersect_", "black", X, Y));
+                        Result.Add(new Point("_intersection_", color, X, Y));
                     }
                 }
-                return new PointSequence(Result);
             }
+            return new PointSequence(Result);
         }
 
         //SEGMENTOS
         //con segmento
-        public static PointSequence Intersect(Segment s1, Segment s2)
+        public static PointSequence Intersect(Segment s1, Segment s2 , string color)
         {
             //hallando la ecuacion de la recta
             var s1_m = ((s1.P2.Y - s1.P1.Y) / (s1.P2.X - s1.P1.X));
@@ -372,7 +364,7 @@ namespace G_Wall_E
                 //si esta acotada intercepta
                 if (Is_Acot(xr, x_min_1, x_max_1) && Is_Acot(yr, y_min_1, y_max_1) && Is_Acot(xr, x_min_2, x_max_2) && Is_Acot(yr, y_min_2, y_max_2))
                 {
-                    return new PointSequence(new List<Point>() { new Point("_intersect_", "black", xr, yr) });
+                    return new PointSequence(new List<Point>() { new Point("_intersect_", color, xr, yr) });
                 }
                 //no esta acotada
                 else return new PointSequence(new List<Point>());
@@ -380,7 +372,7 @@ namespace G_Wall_E
         }
 
         //con rayo
-        public static PointSequence Intersect(Segment s, Ray r)
+        public static PointSequence Intersect(Segment s, Ray r , string color)
         {
             //hallando la ecuacion de la recta
             var l_m = ((s.P2.Y - s.P1.Y) / (s.P2.X - s.P1.X));
@@ -409,22 +401,10 @@ namespace G_Wall_E
                 var xr = (r_n - l_n) / (l_m - r_m);
                 var yr = l_m * xr + l_n;
 
-                bool acot_x = false; //si esta en le rango de las x
-                bool acot_y = false; //si esta en le rango de las y
-
-                //si el rayo se desplaza hacia la izquierda 
-                if (r.P1.X > r.P2.X && xr <= r.P1.X) acot_x = true;
-                //si el rayo se desplaza hacia la derecha
-                else if (r.P1.X < r.P2.X && xr >= r.P1.X) acot_x = true;
-                //si el rayo se desplaza hacia abajo
-                if (r.P1.Y > r.P2.Y && yr <= r.P1.Y) acot_y = true;
-                //si el rayo se desplaza hacia arriba
-                else if (r.P1.Y < r.P2.Y && yr >= r.P1.Y) acot_y = true;
-
                 //es intercepto
-                if (acot_x && acot_y && Is_Acot(xr, x_min, x_max) && Is_Acot(yr, y_min, y_max))
+                if (Ray_Acot(r, xr, yr) && Is_Acot(xr, x_min, x_max) && Is_Acot(yr, y_min, y_max))
                 {
-                    return new PointSequence(new List<Point>() { new Point("_intersect_", "black", xr, yr) });
+                    return new PointSequence(new List<Point>() { new Point("_intersect_", color, xr, yr) });
                 }
                 //si no lo esta, no lo es
                 else return new PointSequence(new List<Point>());
@@ -432,99 +412,164 @@ namespace G_Wall_E
         }
 
         //con arco
-        public static PointSequence Intersect(Segment s, Arc a)
+        public static PointSequence Intersect(Segment s, Arc a , string color)
         {
-            //hallando vector de direccion de la recta
-            double dx = s.P2.X - s.P1.X;
-            double dy = s.P2.Y - s.P1.Y;
-            //hallando ecuación paramétrica de la recta
-            double A = dx * dx + dy * dy;
-            double B = 2 * (dx * (s.P1.X - a.P1.X) + dy * (s.P1.Y - a.P1.Y));
-            double C = Math.Pow(s.P1.X - a.P1.X, 2) + Math.Pow(s.P1.Y - a.P1.Y, 2) - Math.Pow(a.Distance.Value, 2);
-            //calculando determinante
-            double det = B * B - 4 * A * C;
-            //no intersecta en ningún punto
-            if (det < 0) return new PointSequence(new List<Point>());
-            //intersecta en un solo punto
-            else if (det == 0)
+            var radius = a.Distance.Execute();
+            List<Point> Result = new List<Point>();
+
+            //hallar la acotacion del arco en x
+            var x_min_1 = Math.Min(a.P3.X, a.P2.X);
+            var x_max_1 = Math.Max(a.P3.X, a.P2.X);
+            //hallar la acotacion del arco en y
+            var y_min_1 = Math.Min(a.P3.Y, a.P2.Y);
+            var y_max_1 = Math.Max(a.P3.Y, a.P2.Y);
+
+            //hallar la acotacion del segmento en x
+            var x_min_2 = Math.Min(s.P1.X, s.P2.X);
+            var x_max_2 = Math.Max(s.P1.X, s.P2.X);
+            //hallar la acotacion del segmento en y
+            var y_min_2 = Math.Min(s.P1.Y, s.P2.Y);
+            var y_max_2 = Math.Max(s.P1.Y, s.P2.Y);
+
+            //Si la distancia del centro a la recta es mayor que el radio, no hay intersección
+            if (Distancia_Punto_Recta(a.P1, s.P1, s.P2) > radius)
             {
-                double t = -B / (2 * A);
-                if (Point_Segment(new Point("_intersection_", "black", s.P1.X + t * dx, s.P1.Y + t * dy), s)) return Intersect(new Point("_intersection_", "black", s.P1.X + t * dx, s.P1.Y + t * dy), a);
-                else return new PointSequence(new List<Point>());
-            }
-            //intersecta en dos puntos
-            else
-            {
-                double t1 = (-B + Math.Sqrt(det)) / (2 * A);
-                double t2 = (-B - Math.Sqrt(det)) / (2 * A);
-                PointSequence P_1 = Intersect(new Point("_intersection_", "black", s.P1.X + t1 * dx, s.P1.Y + t1 * dy), a);
-                PointSequence P_2 = Intersect(new Point("_intersection_", "black", s.P1.X + t2 * dx, s.P1.Y + t2 * dy), a);
-                if (P_1.Count == 0 && P_2.Count != 0)
-                {
-                    if (Point_Segment(new Point("_intersection_", "black", s.P1.X + t2 * dx, s.P1.Y + t2 * dy), s)) return P_2;
-                }
-                if (P_2.Count == 0 && P_1.Count != 0)
-                {
-                    if (Point_Segment(new Point("_intersection_", "black", s.P1.X + t1 * dx, s.P1.Y + t1 * dy), s)) return P_1;
-                }
-                if (P_2.Count != 0 && P_1.Count != 0)
-                {
-                    if (Point_Segment(new Point("_intersection_", "black", s.P1.X + t2 * dx, s.P1.Y + t2 * dy), s) && Point_Segment(new Point("_intersection_", "black", s.P1.X + t1 * dx, s.P1.Y + t1 * dy), s)) return P_1.Concat(P_2);
-                    if (!Point_Segment(new Point("_intersection_", "black", s.P1.X + t2 * dx, s.P1.Y + t2 * dy), s) && Point_Segment(new Point("_intersection_", "black", s.P1.X + t1 * dx, s.P1.Y + t1 * dy), s)) return P_1;
-                    if (Point_Segment(new Point("_intersection_", "black", s.P1.X + t2 * dx, s.P1.Y + t2 * dy), s) && !Point_Segment(new Point("_intersection_", "black", s.P1.X + t1 * dx, s.P1.Y + t1 * dy), s)) return P_2;
-                }
                 return new PointSequence(new List<Point>());
             }
+
+            //Si la distancia del punto a la recta es igual o menor al radio, se intersectan en un solo punto o en dos
+            else
+            {
+                //Si no podemos calcular la pendiente por la via trivial, hay que hacerlo de otra forma
+                if (s.P2.X - s.P1.X == 0)
+                {
+                    double X = s.P1.X;
+                    if (Is_Acot(X, x_min_1, x_max_1) && Is_Acot(X, x_min_2, x_max_2))
+                    {
+                        double Y = a.P1.Y + Math.Sqrt((radius * radius) - ((X - a.P1.X) * (X - a.P1.X)));
+
+                        if (Is_Acot(Y, y_min_1, y_max_1) && Is_Acot(Y, y_min_2, y_max_2)) Result.Add(new Point("_intersection_", color, X, Y));
+
+                        Y = a.P1.Y - Math.Sqrt((radius * radius) - ((X - a.P1.X) * (X - a.P1.X)));
+
+                        if (Is_Acot(Y, y_min_1, y_max_1) && Is_Acot(Y, y_min_2, y_max_2)) Result.Add(new Point("_intersection_", color, X, Y));
+                    }
+
+                }
+                else
+                {
+                    //Hallando m y n
+                    double m = (s.P2.Y - s.P1.Y) / (s.P2.X - s.P1.X);
+                    double n = s.P2.Y - (m * s.P2.X);
+                    //Parametrizando
+                    double A = 1 + (m * m);
+                    double B = (2 * m * n) - (2 * a.P1.Y * m) - (2 * a.P1.X);
+                    double C = (a.P1.X * a.P1.X) + (a.P1.Y * a.P1.Y) - (radius * radius) - (2 * n * a.P1.Y) + (n * n);
+                    double Discriminante = (B * B) - (4 * A * C);
+                    //Si el dicriminante es 0, tiene una sola intersección
+                    if (Discriminante == 0)
+                    {
+                        double X = (-B) / (2 * A);
+                        double Y = (m * X) + n;
+                        if (Is_Acot(X, x_min_1, x_max_1) && Is_Acot(X, x_min_2, x_max_2) && Is_Acot(Y, y_min_1, y_max_1) && Is_Acot(Y, y_min_2, y_max_2))
+                        {
+                            Result.Add(new Point("_intersection_", color, X, Y));
+                        }
+                    }
+                    //Si no es 0, tiene 2 intersecciones
+                    else
+                    {
+                        double X = ((-B) + Math.Sqrt(Discriminante)) / (2 * A);
+                        double Y = (m * X) + n;
+
+                        if (Is_Acot(X, x_min_1, x_max_1) && Is_Acot(X, x_min_2, x_max_2) && Is_Acot(Y, y_min_1, y_max_1) && Is_Acot(Y, y_min_2, y_max_2)) Result.Add(new Point("_intersection_", color, X, Y));
+
+                        X = ((-B) - Math.Sqrt(Discriminante)) / (2 * A);
+                        Y = (m * X) + n;
+
+                        if (Is_Acot(X, x_min_1, x_max_1) && Is_Acot(X, x_min_2, x_max_2) && Is_Acot(Y, y_min_1, y_max_1) && Is_Acot(Y, y_min_2, y_max_2)) Result.Add(new Point("_intersection_", color, X, Y));
+                    }
+                }
+            }
+            return new PointSequence(Result);
         }
 
         //con circunferencia
-        public static PointSequence Intersect(Segment s, Circle c)
+        public static PointSequence Intersect(Segment s, Circle c , string color)
         {
-            //hallando vector de direccion de la recta
-            double dx = s.P2.X - s.P1.X;
-            double dy = s.P2.Y - s.P1.Y;
-            //hallando ecuación paramétrica de la recta
-            double A = dx * dx + dy * dy;
-            double B = 2 * (dx * (s.P1.X - c.P1.X) + dy * (s.P1.Y - c.P1.Y));
-            double C = Math.Pow(s.P1.X - c.P1.X, 2) + Math.Pow(s.P1.Y - c.P1.Y, 2) - Math.Pow(c.Radius.Value, 2);
-            //calculando determinante
-            double det = B * B - 4 * A * C;
-            //no intersecta en ningún punto
-            if (det < 0) return new PointSequence(new List<Point>());
-            //intersecta en un solo punto
-            else if (det == 0)
+            var radius = c.Radius.Execute();
+            List<Point> Result = new List<Point>();
+
+            //hallar la acotacion del segmento1 en x
+            var x_min = Math.Min(s.P1.X, s.P2.X);
+            var x_max = Math.Max(s.P1.X, s.P2.X);
+            //hallar la acotacion del segmento1 en y
+            var y_min = Math.Min(s.P1.Y, s.P2.Y);
+            var y_max = Math.Max(s.P1.Y, s.P2.Y);
+
+            //Si la distancia del centro a la recta es mayor que el radio, no hay intersección
+            if (Distancia_Punto_Recta(c.P1, s.P1, s.P2) > radius)
             {
-                double t = -B / (2 * A);
-                if (Point_Segment(new Point("_intersection_", "black", s.P1.X + t * dx, s.P1.Y + t * dy), s))
-                {
-                    return new PointSequence(new List<Point>() { new Point("_intersection_", "black", s.P1.X + t * dx, s.P1.Y + t * dy) });
-                }
                 return new PointSequence(new List<Point>());
             }
-            //intersecta en dos puntos
+
+            //Si la distancia del punto a la recta es igual o menor al radio, se intersectan en un solo punto o en dos
             else
             {
-                double t1 = (-B + Math.Sqrt(det)) / (2 * A);
-                double t2 = (-B - Math.Sqrt(det)) / (2 * A);
-                if (Point_Segment(new Point("_intersection_", "black", s.P1.X + t1 * dx, s.P1.Y + t1 * dy), s) && !Point_Segment(new Point("_intersection_", "black", s.P1.X + t2 * dx, s.P1.Y + t2 * dy), s))
+                //Si no podemos calcular la pendiente por la via trivial, hay que hacerlo de otra forma
+                if (s.P2.X - s.P1.X == 0)
                 {
-                    return new PointSequence(new List<Point>() { new Point("_intersection_", "black", s.P1.X + t1 * dx, s.P1.Y + t1 * dy) });
+                    double X = s.P1.X;
+                    if (Is_Acot(X, x_min, x_max))
+                    {
+                        double Y = c.P1.Y + Math.Sqrt((radius * radius) - ((X - c.P1.X) * (X - c.P1.X)));
+
+                        if (Is_Acot(Y, y_min, y_max)) Result.Add(new Point("_intersection_", color, X, Y));
+
+                        Y = c.P1.Y - Math.Sqrt((radius * radius) - ((X - c.P1.X) * (X - c.P1.X)));
+
+                        if (Is_Acot(Y, y_min, y_max)) Result.Add(new Point("_intersection_", color, X, Y));
+                    }
                 }
-                if (Point_Segment(new Point("_intersection_", "black", s.P1.X + t2 * dx, s.P1.Y + t2 * dy), s) && !Point_Segment(new Point("_intersection_", "black", s.P1.X + t1 * dx, s.P1.Y + t1 * dy), s))
+                else
                 {
-                    return new PointSequence(new List<Point>() { new Point("_intersection_", "black", s.P1.X + t2 * dx, s.P1.Y + t2 * dy) });
+                    //Hallando m y n
+                    double m = (s.P2.Y - s.P1.Y) / (s.P2.X - s.P1.X);
+                    double n = s.P2.Y - (m * s.P2.X);
+                    //Parametrizando
+                    double A = 1 + (m * m);
+                    double B = (2 * m * n) - (2 * c.P1.Y * m) - (2 * c.P1.X);
+                    double C = (c.P1.X * c.P1.X) + (c.P1.Y * c.P1.Y) - (radius * radius) - (2 * n * c.P1.Y) + (n * n);
+                    double Discriminante = (B * B) - (4 * A * C);
+                    //Si el dicriminante es 0, tiene una sola intersección
+                    if (Discriminante == 0)
+                    {
+                        double X = (-B) / (2 * A);
+                        double Y = (m * X) + n;
+
+                        if (Is_Acot(X, x_min, x_max) && Is_Acot(Y, y_min, y_max)) Result.Add(new Point("_intersection_", color, X, Y));
+                    }
+                    //Si no es 0, tiene 2 intersecciones
+                    else
+                    {
+                        double X = ((-B) + Math.Sqrt(Discriminante)) / (2 * A);
+                        double Y = (m * X) + n;
+
+                        if (Is_Acot(X, x_min, x_max) && Is_Acot(Y, y_min, y_max)) Result.Add(new Point("_intersection_", color, X, Y));
+
+                        X = ((-B) - Math.Sqrt(Discriminante)) / (2 * A);
+                        Y = (m * X) + n;
+
+                        if (Is_Acot(X, x_min, x_max) && Is_Acot(Y, y_min, y_max)) Result.Add(new Point("_intersection_", color, X, Y));
+                    }
                 }
-                if (Point_Segment(new Point("_intersection_", "black", s.P1.X + t2 * dx, s.P1.Y + t2 * dy), s) && Point_Segment(new Point("_intersection_", "black", s.P1.X + t1 * dx, s.P1.Y + t1 * dy), s))
-                {
-                    return new PointSequence(new List<Point>() { new Point("_intersection_", "black", s.P1.X + t1 * dx, s.P1.Y + t1 * dy), new Point("_intersection_", "black", s.P1.X + t2 * dx, s.P1.Y + t2 * dy) });
-                }
-                return new PointSequence(new List<Point>());
             }
+            return new PointSequence(Result);
         }
 
         //RAYOS
         //con rayo
-        public static PointSequence Intersect(Ray r1, Ray r2)
+        public static PointSequence Intersect(Ray r1, Ray r2 , string color)
         {
             //hallando la ecuacion de la recta
             var l_m = ((r1.P2.Y - r1.P1.Y) / (r1.P2.X - r1.P1.X));
@@ -546,33 +591,10 @@ namespace G_Wall_E
                 var xr = (r_n - l_n) / (l_m - r_m);
                 var yr = l_m * xr + l_n;
 
-                bool acot_x_1 = false; //si esta en le rango de las x
-                bool acot_y_1 = false; //si esta en le rango de las y
-                bool acot_x_2 = false; //si esta en le rango de las x
-                bool acot_y_2 = false; //si esta en le rango de las y
-
-                //si el rayo se desplaza hacia la izquierda 
-                if (r1.P1.X > r1.P2.X && xr <= r1.P1.X) acot_x_1 = true;
-                //si el rayo se desplaza hacia la derecha
-                else if (r1.P1.X < r1.P2.X && xr >= r1.P1.X) acot_x_1 = true;
-                //si el rayo se desplaza hacia abajo
-                if (r1.P1.Y > r1.P2.Y && yr <= r1.P1.Y) acot_y_1 = true;
-                //si el rayo se desplaza hacia arriba
-                else if (r1.P1.Y < r1.P2.Y && yr >= r1.P1.Y) acot_y_1 = true;
-
-                //si el rayo se desplaza hacia la izquierda 
-                if (r2.P1.X > r2.P2.X && xr <= r2.P1.X) acot_x_2 = true;
-                //si el rayo se desplaza hacia la derecha
-                else if (r2.P1.X < r2.P2.X && xr >= r2.P1.X) acot_x_2 = true;
-                //si el rayo se desplaza hacia abajo
-                if (r2.P1.Y > r2.P2.Y && yr <= r2.P1.Y) acot_y_2 = true;
-                //si el rayo se desplaza hacia arriba
-                else if (r2.P1.Y < r2.P2.Y && yr >= r2.P1.Y) acot_y_2 = true;
-
                 //es intercepto
-                if (acot_x_1 && acot_y_1 && acot_x_2 && acot_y_2)
+                if (Ray_Acot(r1, xr, yr) && Ray_Acot(r2, xr, yr))
                 {
-                    return new PointSequence(new List<Point>() { new Point("_intersect_", "black", xr, yr) });
+                    return new PointSequence(new List<Point>() { new Point("_intersect_", color, xr, yr) });
                 }
                 //si no lo esta, no lo es
                 else return new PointSequence(new List<Point>());
@@ -580,203 +602,352 @@ namespace G_Wall_E
         }
 
         //con arco
-        public static PointSequence Intersect(Ray p, Arc a)
+        public static PointSequence Intersect(Ray p, Arc a , string color)
         {
-            //hallando vector de direccion de la recta
-            double dx = p.P2.X - p.P1.X;
-            double dy = p.P2.Y - p.P1.Y;
-            //hallando ecuación paramétrica de la recta
-            double A = dx * dx + dy * dy;
-            double B = 2 * (dx * (p.P1.X - a.P1.X) + dy * (p.P1.Y - a.P1.Y));
-            double C = Math.Pow(p.P1.X - a.P1.X, 2) + Math.Pow(p.P1.Y - a.P1.Y, 2) - Math.Pow(a.Distance.Value, 2);
-            //calculando determinante
-            double det = B * B - 4 * A * C;
-            //no intersecta en ningún punto
-            if (det < 0) return new PointSequence(new List<Point>());
-            //intersecta en un solo punto
-            else if (det == 0)
+            var radius = a.Distance.Execute();
+            List<Point> Result = new List<Point>();
+
+            //hallar la acotacion del arco en x
+            var x_min = Math.Min(a.P3.X, a.P2.X);
+            var x_max = Math.Max(a.P3.X, a.P2.X);
+            //hallar la acotacion del arco en y
+            var y_min = Math.Min(a.P3.Y, a.P2.Y);
+            var y_max = Math.Max(a.P3.Y, a.P2.Y);
+
+            //Si la distancia del centro a la recta es mayor que el radio, no hay intersección
+            if (Distancia_Punto_Recta(a.P1, p.P1, p.P2) > radius)
             {
-                double t = -B / (2 * A);
-                if (Point_Ray(new Point("_intersection_", "black", p.P1.X + t * dx, p.P1.Y + t * dy), p)) return Intersect(new Point("_intersection_", "black", p.P1.X + t * dx, p.P1.Y + t * dy), a);
-                else return new PointSequence(new List<Point>());
-            }
-            //intersecta en dos puntos
-            else
-            {
-                double t1 = (-B + Math.Sqrt(det)) / (2 * A);
-                double t2 = (-B - Math.Sqrt(det)) / (2 * A);
-                PointSequence P_1 = Intersect(new Point("_intersection_", "black", p.P1.X + t1 * dx, p.P1.Y + t1 * dy), a);
-                PointSequence P_2 = Intersect(new Point("_intersection_", "black", p.P1.X + t2 * dx, p.P1.Y + t2 * dy), a);
-                if (P_1.Count == 0 && P_2.Count != 0)
-                {
-                    if (Point_Ray(new Point("_intersection_", "black", p.P1.X + t2 * dx, p.P1.Y + t2 * dy), p)) return P_2;
-                }
-                if (P_2.Count == 0 && P_1.Count != 0)
-                {
-                    if (Point_Ray(new Point("_intersection_", "black", p.P1.X + t1 * dx, p.P1.Y + t1 * dy), p)) return P_1;
-                }
-                if (P_2.Count != 0 && P_1.Count != 0)
-                {
-                    if (Point_Ray(new Point("_intersection_", "black", p.P1.X + t2 * dx, p.P1.Y + t2 * dy), p) && Point_Ray(new Point("_intersection_", "black", p.P1.X + t1 * dx, p.P1.Y + t1 * dy), p)) return P_1.Concat(P_2);
-                    if (!Point_Ray(new Point("_intersection_", "black", p.P1.X + t2 * dx, p.P1.Y + t2 * dy), p) && Point_Ray(new Point("_intersection_", "black", p.P1.X + t1 * dx, p.P1.Y + t1 * dy), p)) return P_1;
-                    if (Point_Ray(new Point("_intersection_", "black", p.P1.X + t2 * dx, p.P1.Y + t2 * dy), p) && !Point_Ray(new Point("_intersection_", "black", p.P1.X + t1 * dx, p.P1.Y + t1 * dy), p)) return P_2;
-                }
                 return new PointSequence(new List<Point>());
             }
+
+            //Si la distancia del punto a la recta es igual o menor al radio, se intersectan en un solo punto o en dos
+            else
+            {
+                //Si no podemos calcular la pendiente por la via trivial, hay que hacerlo de otra forma
+                if (p.P2.X - p.P1.X == 0)
+                {
+                    double X = p.P1.X;
+                    if (Is_Acot(X, x_min, x_max))
+                    {
+                        double Y = a.P1.Y + Math.Sqrt((radius * radius) - ((X - a.P1.X) * (X - a.P1.X)));
+
+                        if (Is_Acot(Y, y_min, y_max) && Ray_Acot(p, X, Y)) Result.Add(new Point("_intersection_", color, X, Y));
+
+                        Y = a.P1.Y - Math.Sqrt((radius * radius) - ((X - a.P1.X) * (X - a.P1.X)));
+
+                        if (Is_Acot(Y, y_min, y_max) && Ray_Acot(p, X, Y)) Result.Add(new Point("_intersection_", color, X, Y));
+                    }
+
+                }
+                else
+                {
+                    //Hallando m y n
+                    double m = (p.P2.Y - p.P1.Y) / (p.P2.X - p.P1.X);
+                    double n = p.P2.Y - (m * p.P2.X);
+                    //Parametrizando
+                    double A = 1 + (m * m);
+                    double B = (2 * m * n) - (2 * a.P1.Y * m) - (2 * a.P1.X);
+                    double C = (a.P1.X * a.P1.X) + (a.P1.Y * a.P1.Y) - (radius * radius) - (2 * n * a.P1.Y) + (n * n);
+                    double Discriminante = (B * B) - (4 * A * C);
+                    //Si el dicriminante es 0, tiene una sola intersección
+                    if (Discriminante == 0)
+                    {
+                        double X = (-B) / (2 * A);
+                        double Y = (m * X) + n;
+                        if (Is_Acot(X, x_min, x_max) && Is_Acot(Y, y_min, y_max) && Ray_Acot(p, X, Y))
+                        {
+                            Result.Add(new Point("_intersection_", color, X, Y));
+                        }
+                    }
+                    //Si no es 0, tiene 2 intersecciones
+                    else
+                    {
+                        double X = ((-B) + Math.Sqrt(Discriminante)) / (2 * A);
+                        double Y = (m * X) + n;
+
+                        if (Is_Acot(X, x_min, x_max) && Is_Acot(Y, y_min, y_max) && Ray_Acot(p, X, Y)) Result.Add(new Point("_intersection_", color, X, Y));
+
+                        X = ((-B) - Math.Sqrt(Discriminante)) / (2 * A);
+                        Y = (m * X) + n;
+
+                        if (Is_Acot(X, x_min, x_max) && Is_Acot(Y, y_min, y_max) && Ray_Acot(p, X, Y)) Result.Add(new Point("_intersection_", color, X, Y));
+                    }
+                }
+            }
+            return new PointSequence(Result);
         }
 
         //con circunferencia
-        public static PointSequence Intersect(Ray s, Circle c)
+        public static PointSequence Intersect(Ray s, Circle c , string color)
         {
-            //hallando vector de direccion de la recta
-            double dx = s.P2.X - s.P1.X;
-            double dy = s.P2.Y - s.P1.Y;
-            //hallando ecuación paramétrica de la recta
-            double A = dx * dx + dy * dy;
-            double B = 2 * (dx * (s.P1.X - c.P1.X) + dy * (s.P1.Y - c.P1.Y));
-            double C = Math.Pow(s.P1.X - c.P1.X, 2) + Math.Pow(s.P1.Y - c.P1.Y, 2) - Math.Pow(c.Radius.Value, 2);
-            //calculando determinante
-            double det = B * B - 4 * A * C;
-            //no intersecta en ningún punto
-            if (det < 0) return new PointSequence(new List<Point>());
-            //intersecta en un solo punto
-            else if (det == 0)
+            var radius = c.Radius.Execute();
+            List<Point> Result = new List<Point>();
+
+            //Si la distancia del centro a la recta es mayor que el radio, no hay intersección
+            if (Distancia_Punto_Recta(c.P1, s.P1, s.P2) > radius)
             {
-                double t = -B / (2 * A);
-                if (Point_Ray(new Point("_intersection_", "black", s.P1.X + t * dx, s.P1.Y + t * dy), s))
-                {
-                    return new PointSequence(new List<Point>() { new Point("_intersection_", "black", s.P1.X + t * dx, s.P1.Y + t * dy) });
-                }
                 return new PointSequence(new List<Point>());
             }
-            //intersecta en dos puntos
+
+            //Si la distancia del punto a la recta es igual o menor al radio, se intersectan en un solo punto o en dos
             else
             {
-                double t1 = (-B + Math.Sqrt(det)) / (2 * A);
-                double t2 = (-B - Math.Sqrt(det)) / (2 * A);
-                if (Point_Ray(new Point("_intersection_", "black", s.P1.X + t1 * dx, s.P1.Y + t1 * dy), s) && !Point_Ray(new Point("_intersection_", "black", s.P1.X + t2 * dx, s.P1.Y + t2 * dy), s))
+                //Si no podemos calcular la pendiente por la via trivial, hay que hacerlo de otra forma
+                if (s.P2.X - s.P1.X == 0)
                 {
-                    return new PointSequence(new List<Point>() { new Point("_intersection_", "black", s.P1.X + t1 * dx, s.P1.Y + t1 * dy) });
+                    double X = s.P1.X;
+
+                    double Y = c.P1.Y + Math.Sqrt((radius * radius) - ((X - c.P1.X) * (X - c.P1.X)));
+
+                    if (Ray_Acot(s, X, Y)) Result.Add(new Point("_intersection_", color, X, Y));
+
+                    Y = c.P1.Y - Math.Sqrt((radius * radius) - ((X - c.P1.X) * (X - c.P1.X)));
+
+                    if (Ray_Acot(s, X, Y)) Result.Add(new Point("_intersection_", color, X, Y));
                 }
-                if (Point_Ray(new Point("_intersection_", "black", s.P1.X + t2 * dx, s.P1.Y + t2 * dy), s) && !Point_Ray(new Point("_intersection_", "black", s.P1.X + t1 * dx, s.P1.Y + t1 * dy), s))
+                else
                 {
-                    return new PointSequence(new List<Point>() { new Point("_intersection_", "black", s.P1.X + t2 * dx, s.P1.Y + t2 * dy) });
+                    //Hallando m y n
+                    double m = (s.P2.Y - s.P1.Y) / (s.P2.X - s.P1.X);
+                    double n = s.P2.Y - (m * s.P2.X);
+                    //Parametrizando
+                    double A = 1 + (m * m);
+                    double B = (2 * m * n) - (2 * c.P1.Y * m) - (2 * c.P1.X);
+                    double C = (c.P1.X * c.P1.X) + (c.P1.Y * c.P1.Y) - (radius * radius) - (2 * n * c.P1.Y) + (n * n);
+                    double Discriminante = (B * B) - (4 * A * C);
+                    //Si el dicriminante es 0, tiene una sola intersección
+                    if (Discriminante == 0)
+                    {
+                        double X = (-B) / (2 * A);
+                        double Y = (m * X) + n;
+
+                        if (Ray_Acot(s, X, Y)) Result.Add(new Point("_intersection_", color, X, Y));
+                    }
+                    //Si no es 0, tiene 2 intersecciones
+                    else
+                    {
+                        double X = ((-B) + Math.Sqrt(Discriminante)) / (2 * A);
+                        double Y = (m * X) + n;
+
+                        if (Ray_Acot(s, X, Y)) Result.Add(new Point("_intersection_", color, X, Y));
+
+                        X = ((-B) - Math.Sqrt(Discriminante)) / (2 * A);
+                        Y = (m * X) + n;
+
+                        if (Ray_Acot(s, X, Y)) Result.Add(new Point("_intersection_", color, X, Y));
+                    }
                 }
-                if (Point_Ray(new Point("_intersection_", "black", s.P1.X + t2 * dx, s.P1.Y + t2 * dy), s) && Point_Ray(new Point("_intersection_", "black", s.P1.X + t1 * dx, s.P1.Y + t1 * dy), s))
-                {
-                    return new PointSequence(new List<Point>() { new Point("_intersection_", "black", s.P1.X + t1 * dx, s.P1.Y + t1 * dy), new Point("_intersection_", "black", s.P1.X + t2 * dx, s.P1.Y + t2 * dy) });
-                }
-                return new PointSequence(new List<Point>());
             }
+            return new PointSequence(Result);
         }
 
         //ARCOS
         //con arco
-        public static PointSequence Intersect(Arc c1, Arc c2)
+        public static PointSequence Intersect(Arc c1, Arc c2 , string color)
         {
-            // Verificar si los arcos son el mismo
-            if (c1.P1.X == c2.P1.X && c1.P1.Y == c2.P1.Y && c1.P2.X == c2.P2.X && c1.P2.Y == c2.P2.Y && c1.P3.X == c2.P3.X && c1.P3.Y == c2.P3.Y) return new PointSequence(true);
-            double d = Math.Sqrt(Math.Pow(c2.P1.X - c1.P1.X, 2) + Math.Pow(c2.P1.Y - c1.P1.Y, 2));
-            if (d > c1.Distance.Value + c2.Distance.Value || d < Math.Abs(c1.Distance.Value - c2.Distance.Value)) return new PointSequence(new List<Point>());
-            double a = Math.Pow(c1.Distance.Value, 2) - Math.Pow(c2.Distance.Value, 2) + d * d / 2 * d;
-            double h = Math.Sqrt(Math.Pow(c1.Distance.Value, 2)) - Math.Pow(a, 2);
-            double x = c1.P1.X + a * (c2.P1.X - c1.P1.X) / d;
-            double y = c1.P1.Y + a * (c2.P1.Y - c1.P1.Y) / d;
-            double x1 = x + h * (c2.P1.Y - c1.P1.Y) / d;
-            double y1 = y - h * (c2.P1.X - c1.P1.X) / d;
-            double x2 = x - h * (c2.P1.Y - c1.P1.Y) / d;
-            double y2 = y + h * (c2.P1.X - c1.P1.X) / d;
-            Point P1 = new Point("i", "black", x1, y1);
-            Point P2 = new Point("i", "black", x2, y2);
-            if (x1 == x2 && y1 == y2 && Point_Arc(P1, c1) && Point_Arc(P1, c2)) return new PointSequence(new List<Point>() { P1 });
-            if (Point_Arc(P1, c1) && Point_Arc(P1, c2) && Point_Arc(P2, c1) && Point_Arc(P2, c2)) return new PointSequence(new List<Point>() { P1, P2 });
-            if (Point_Arc(P1, c1) && Point_Arc(P1, c2)) return new PointSequence(new List<Point>() { P1 });
-            if (Point_Arc(P2, c1) && Point_Arc(P2, c2)) return new PointSequence(new List<Point>() { P2 });
-            return new PointSequence(new List<Point>());
+            //hallar la acotacion del arco1 en x
+            var x_min_1 = Math.Min(c1.P3.X, c1.P2.X);
+            var x_max_1 = Math.Max(c1.P3.X, c1.P2.X);
+            //hallar la acotacion del arco1 en y
+            var y_min_1 = Math.Min(c1.P3.Y, c1.P2.Y);
+            var y_max_1 = Math.Max(c1.P3.Y, c1.P2.Y);
+
+            //hallar la acotacion del arco2 en x
+            var x_min_2 = Math.Min(c2.P3.X, c2.P2.X);
+            var x_max_2 = Math.Max(c2.P3.X, c2.P2.X);
+            //hallar la acotacion del arco2 en y
+            var y_min_2 = Math.Min(c2.P3.Y, c2.P2.Y);
+            var y_max_2 = Math.Max(c2.P3.Y, c2.P2.Y);
+
+            var radius_1 = c1.Distance.Execute();
+            var radius_2 = c2.Distance.Execute();
+
+            var result = new List<Point>();
+
+            //calculo la distancia entre los centros de las circunferencias
+            var distance = Math.Sqrt(Math.Pow(c2.P1.X - c1.P1.X, 2) + Math.Pow(c2.P1.Y - c1.P1.Y, 2));
+
+            //si la distancia es mayor o menor que las umas y restas de los radios de las circunferencias, no se cortan
+            if (distance > radius_1 + radius_2 || distance < Math.Abs(radius_1 - radius_2))
+            {
+                return new PointSequence(result);
+            }
+
+            //si son tangentes, tienen un punto de interseccion
+            else if (Math.Abs(distance - (radius_1 + radius_2)) < 1e-6)
+            {
+                var x = (c1.P1.X * radius_2 + c2.P1.X * radius_1) / (radius_1 + radius_2);
+                var y = (c1.P1.Y * radius_2 + c2.P1.Y * radius_1) / (radius_1 + radius_2);
+
+                if (Is_Acot(x, x_min_1, x_max_1) && Is_Acot(x, x_min_2, x_max_2) && Is_Acot(y, y_min_2, y_max_2) && Is_Acot(y, y_min_1, y_max_1))
+                {
+                    result.Add(new Point("_intersect_", color, x, y));
+                }
+                return new PointSequence(result);
+            }
+
+            //si son exactamente iguales
+            else if (radius_1 == radius_2 && c1.P1.X == c2.P1.X && c1.P1.Y == c2.P1.Y)
+            {
+                return new PointSequence(true);
+            }
+
+            //se cortan en dos puntos
+            else
+            {
+                var a = (radius_1 * radius_1 - radius_2 * radius_2 + distance * distance) / (2 * distance);
+                var h = Math.Sqrt(radius_1 * radius_1 - a * a);
+
+                var x = c1.P1.X + a * (c2.P1.X - c1.P1.X) / distance;
+                var y = c1.P1.Y + a * (c2.P1.Y - c1.P1.Y) / distance;
+
+                var v = (c2.P1.Y - c1.P1.Y) / distance;
+                var w = (c2.P1.X - c1.P1.X) / distance;
+
+                var X = x - h * v;
+                var Y = y + h * w;
+
+                if (Is_Acot(X, x_min_1, x_max_1) && Is_Acot(X, x_min_2, x_max_2) && Is_Acot(Y, y_min_2, y_max_2) && Is_Acot(Y, y_min_1, y_max_1))
+                {
+                    result.Add(new Point("_intersect_", color, X, Y));
+                }
+
+                X = x + h * v;
+                Y = y - h * w;
+
+                if (Is_Acot(X, x_min_1, x_max_1) && Is_Acot(X, x_min_2, x_max_2) && Is_Acot(Y, y_min_2, y_max_2) && Is_Acot(Y, y_min_1, y_max_1))
+                {
+                    result.Add(new Point("_intersect_", color, X, Y));
+                }
+                return new PointSequence(result);
+            }
         }
 
 
         //con circunferencia
-        public static PointSequence Intersect(Arc p, Circle c)
+        public static PointSequence Intersect(Arc p, Circle c , string color)
         {
-            // Verificar si los arcos son el mismo
-            if (p.P1.X == c.P1.X && p.P1.Y == p.P1.Y && p.Distance.Value == c.Radius.Value) return new PointSequence(true);
-            double d = Math.Sqrt(Math.Pow(c.P1.X - p.P1.X, 2) + Math.Pow(c.P1.Y - p.P1.Y, 2));
-            if (d > p.Distance.Value + c.Radius.Value || d < Math.Abs(p.Distance.Value - c.Radius.Value)) return new PointSequence(new List<Point>());
-            double a = Math.Pow(p.Distance.Value, 2) - Math.Pow(c.Radius.Value, 2) + d * d / 2 * d;
-            double h = Math.Sqrt(Math.Pow(p.Distance.Value, 2)) - Math.Pow(a, 2);
-            double x = p.P1.X + a * (c.P1.X - p.P1.X) / d;
-            double y = p.P1.Y + a * (c.P1.Y - p.P1.Y) / d;
-            double x1 = x + h * (c.P1.Y - p.P1.Y) / d;
-            double y1 = y - h * (c.P1.X - p.P1.X) / d;
-            double x2 = x - h * (c.P1.Y - p.P1.Y) / d;
-            double y2 = y + h * (c.P1.X - p.P1.X) / d;
-            Point P1 = new Point("i", "black", x1, y1);
-            Point P2 = new Point("i", "black", x2, y2);
-            if (x1 == x2 && y1 == y2 && Point_Arc(P1, p)) return new PointSequence(new List<Point>() { P1 });
-            if (Point_Arc(P1, p) && Point_Arc(P2, p)) return new PointSequence(new List<Point>() { P1, P2 });
-            if (Point_Arc(P1, p)) return new PointSequence(new List<Point>() { P1 });
-            if (Point_Arc(P2, p)) return new PointSequence(new List<Point>() { P2 });
-            return new PointSequence(new List<Point>());
+            //hallar la acotacion del arco en x
+            var x_min = Math.Min(p.P3.X, p.P2.X);
+            var x_max = Math.Max(p.P3.X, p.P2.X);
+            //hallar la acotacion del arco en y
+            var y_min = Math.Min(p.P3.Y, p.P2.Y);
+            var y_max = Math.Max(p.P3.Y, p.P2.Y);
+
+            var radius_1 = p.Distance.Execute();
+            var radius_2 = c.Radius.Execute();
+
+            var result = new List<Point>();
+
+            //calculo la distancia entre los centros de las circunferencias
+            var distance = Math.Sqrt(Math.Pow(c.P1.X - p.P1.X, 2) + Math.Pow(c.P1.Y - p.P1.Y, 2));
+
+            //si la distancia es mayor o menor que las umas y restas de los radios de las circunferencias, no se cortan
+            if (distance > radius_1 + radius_2 || distance < Math.Abs(radius_1 - radius_2))
+            {
+                return new PointSequence(result);
+            }
+
+            //si son tangentes, tienen un punto de interseccion
+            else if (Math.Abs(distance - (radius_1 + radius_2)) < 1e-6)
+            {
+                var x = (p.P1.X * radius_2 + c.P1.X * radius_1) / (radius_1 + radius_2);
+                var y = (p.P1.Y * radius_2 + c.P1.Y * radius_1) / (radius_1 + radius_2);
+
+                if (Is_Acot(x, x_min, x_max) && Is_Acot(y, y_min, y_max))
+                {
+                    result.Add(new Point("_intersect_", color, x, y));
+                }
+                return new PointSequence(result);
+            }
+
+            //si son exactamente iguales
+            else if (radius_1 == radius_2 && p.P1.X == c.P1.X && p.P1.Y == c.P1.Y)
+            {
+                return new PointSequence(true);
+            }
+
+            //se cortan en dos puntos
+            else
+            {
+                var a = (radius_1 * radius_1 - radius_2 * radius_2 + distance * distance) / (2 * distance);
+                var h = Math.Sqrt(radius_1 * radius_1 - a * a);
+
+                var x = p.P1.X + a * (c.P1.X - p.P1.X) / distance;
+                var y = p.P1.Y + a * (c.P1.Y - p.P1.Y) / distance;
+
+                var v = (c.P1.Y - p.P1.Y) / distance;
+                var w = (c.P1.X - p.P1.X) / distance;
+
+                var X = x - h * v;
+                var Y = y + h * w;
+
+                if (Is_Acot(x, x_min, x_max) && Is_Acot(y, y_min, y_max))
+                {
+                    result.Add(new Point("_intersect_", color, X, Y));
+                }
+
+                X = x + h * v;
+                Y = y - h * w;
+
+                if (Is_Acot(x, x_min, x_max) && Is_Acot(y, y_min, y_max))
+                {
+                    result.Add(new Point("_intersect_", color, X, Y));
+                }
+                return new PointSequence(result);
+            }
         }
 
         //CIRCUNFERENCIAS
         //con circunferencia
-        public static PointSequence Intersect(Circle c1, Circle c2)
+        public static PointSequence Intersect(Circle c1, Circle c2 , string color)
         {
-            /*var radiusc1 = c1.Radius.Execute();
-            var radiusc2 = c2.Radius.Execute();
-
-            if (c1.P1.X == c2.P1.X && c1.P1.Y == c2.P1.Y && radiusc1 == radiusc2) return new PointSequence(true);
-
-            double d = Math.Sqrt(Math.Pow(c2.P1.X - c1.P1.X, 2) + Math.Pow(c2.P1.Y - c1.P1.Y, 2));
-
-            if (d > radiusc1 + radiusc2 || d < Math.Abs(radiusc1 - radiusc2)) return new PointSequence(new List<Point>());
-
-            double a = Math.Pow(radiusc1, 2) - Math.Pow(radiusc2, 2) + (d * d) / 2 * d;
-            double h = Math.Sqrt(Math.Pow(c1.Radius.Value, 2)) - Math.Pow(a, 2);
-            double x = c1.P1.X + a * (c2.P1.X - c1.P1.X) / d;
-            double y = c1.P1.Y + a * (c2.P1.Y - c1.P1.Y) / d;
-            double x1 = x + h * (c2.P1.Y - c1.P1.Y) / d;
-            double y1 = y - h * (c2.P1.X - c1.P1.X) / d;
-            double x2 = x - h * (c2.P1.Y - c1.P1.Y) / d;
-            double y2 = y + h * (c2.P1.X - c1.P1.X) / d;
-
-            Point P1 = new Point("i", "black", x1, y1);
-            Point P2 = new Point("i", "black", x2, y2);
-
-            if (x1 == x2 && y1 == y2) return new PointSequence(new List<Point>() { P1 });
-
-            return new PointSequence(new List<Point>() { P1, P2 });*/
-
             var radius_1 = c1.Radius.Execute();
             var radius_2 = c2.Radius.Execute();
 
-            var a = -2 * (c2.P1.Y - c1.P1.Y);
-            var b = -2 * (c1.P1.X + c2.P1.X - 2 * c2.P1.X * (c2.P1.Y - c1.P1.Y));
-            var c = Math.Pow(c1.P1.X, 2) + Math.Pow(c2.P1.X, 2) + Math.Pow(radius_1, 2) + Math.Pow(radius_2, 2) + (c2.P1.Y - c1.P1.Y) * (c2.P1.Y - c1.P1.Y + 2 * Math.Abs(radius_2) - 2 * Math.Pow(Math.Abs(c2.P1.X), 2));
+            var result = new List<Point>();
 
-            var discriminante = b * b - 4 * a * c;
+            //calculo la distancia entre los centros de las circunferencias
+            var distance = Math.Sqrt(Math.Pow(c2.P1.X - c1.P1.X, 2) + Math.Pow(c2.P1.Y - c1.P1.Y, 2));
 
-            if (discriminante < 0) return new PointSequence(new List<Point>());
-
-            else if (discriminante == 0)
+            //si la distancia es mayor o menor que las umas y restas de los radios de las circunferencias, no se cortan
+            if (distance > radius_1 + radius_2 || distance < Math.Abs(radius_1 - radius_2))
             {
-                var x = -b / (2 * a);
-                var y = Math.Sqrt(Math.Pow(radius_2, 2) - Math.Pow(x - c2.P1.X, 2)) + c2.P1.Y;
-
-                return new PointSequence(new List<Point>() { new Point("_intersect_", "black", x, y) });
+                return new PointSequence(result);
             }
 
+            //si son tangentes, tienen un punto de interseccion
+            else if (Math.Abs(distance - (radius_1 + radius_2)) < 1e-6)
+            {
+                var x = (c1.P1.X * radius_2 + c2.P1.X * radius_1) / (radius_1 + radius_2);
+                var y = (c1.P1.Y * radius_2 + c2.P1.Y * radius_1) / (radius_1 + radius_2);
+
+                result.Add(new Point("_intersect_", color, x, y));
+                return new PointSequence(result);
+            }
+
+            //si son exactamente iguales
+            else if (radius_1 == radius_2 && c1.P1.X == c2.P1.X && c1.P1.Y == c2.P1.Y)
+            {
+                return new PointSequence(true);
+            }
+
+            //se cortan en dos puntos
             else
             {
-                var x_1 = (-b + discriminante) / (2 * a);
-                var y_1 = Math.Sqrt(Math.Pow(radius_2, 2) - Math.Pow(x_1 - c2.P1.X, 2)) + c2.P1.Y;
+                var a = (radius_1 * radius_1 - radius_2 * radius_2 + distance * distance) / (2 * distance);
+                var h = Math.Sqrt(radius_1 * radius_1 - a * a);
 
-                var x_2 = (-b - discriminante) / (2 * a);
-                var y_2 = Math.Sqrt(Math.Pow(radius_2, 2) - Math.Pow(x_2 - c2.P1.X, 2)) + c2.P1.Y;
+                var x = c1.P1.X + a * (c2.P1.X - c1.P1.X) / distance;
+                var y = c1.P1.Y + a * (c2.P1.Y - c1.P1.Y) / distance;
 
-                return new PointSequence(new List<Point>() { new Point("_intersect_", "black", x_1, y_1), new Point("_intersect_", "black", x_2, y_2) });
+                var v = (c2.P1.Y - c1.P1.Y) / distance;
+                var w = (c2.P1.X - c1.P1.X) / distance;
+
+                result.Add(new Point("_intersect_", color, x - h * v, y + h * w));
+                result.Add(new Point("_intersect_", color, x + h * v, y - h * w));
+
+                return new PointSequence(result);
             }
         }
 
@@ -792,65 +963,6 @@ namespace G_Wall_E
             if (p.Y == m * p.X + n) return true;
             return false;
         }
-        static bool Point_Segment(Point p, Segment s)
-        {
-            double Producto_cruz = (s.P2.Y - s.P1.Y) * (p.X - s.P1.X) - (s.P2.X - s.P1.X) * (p.Y - s.P1.Y);
-            if (Math.Abs(Producto_cruz) > 1e-10) return false;
-
-            double Producto_escalar = (p.X - s.P1.X) * (s.P2.X - s.P1.X) + (p.Y - s.P1.Y) * (s.P2.Y - s.P1.Y);
-            if (Producto_escalar < 0)
-            {
-                return false;
-            }
-
-            //calculando la longitud al cuadrado
-            double lc = (s.P2.X - s.P1.X) * (s.P2.X - s.P1.X) + (s.P2.Y - s.P1.Y) * (s.P2.Y - s.P1.Y);
-            if (Producto_escalar > lc)
-            {
-                return false;
-            }
-
-            return true;
-        }
-        static bool Point_Ray(Point p, Ray r)
-        {
-            double Vx = p.X - r.P1.X;
-            double Vy = p.Y - r.P1.Y;
-            double Rx = r.P2.X - r.P1.X;
-            double Ry = r.P2.Y - r.P1.Y;
-            double dotProduct = Rx * Vx + Ry * Vy;
-            double R_Magnitude = Math.Sqrt(Rx * Rx + Ry * Ry);
-            double V_Magnitude = Math.Sqrt(Vx * Vx + Vy * Vy);
-            double angle = Math.Acos(dotProduct / (R_Magnitude * V_Magnitude));
-            return Math.Abs(angle) < 0.0001;
-        }
-        static bool Point_Arc(Point p, Arc a)
-        {
-            // Calcular el ángulo de la línea que conecta el centro del arco con el punto
-            double dx = p.X - a.P1.X;
-            double dy = p.Y - a.P1.Y;
-            double angle = Math.Atan2(dy, dx);
-
-            // Calcular los ángulos de inicio y fin del arco
-            double angle1 = Math.Atan2(a.P2.Y - a.P1.Y, a.P2.X - a.P1.X);
-            double angle2 = Math.Atan2(a.P3.Y - a.P1.Y, a.P3.X - a.P1.X);
-
-            // Verificar si el punto está dentro del arco
-            if (angle >= Math.Min(angle1, angle2) && angle <= Math.Max(angle1, angle2))
-            {
-                // Calcular la distancia del punto al centro del arco
-                double distance = Math.Sqrt(dx * dx + dy * dy);
-
-                // Si la distancia es igual al radio del arco, hay una intersección
-                if (distance == a.Distance.Value)
-                {
-                    return true;
-                }
-            }
-            // Si llegamos aquí, no hay intersección
-            return false;
-        }
-
         public static bool Point_Circle(Point p, Point P1, double Radius)//
         {
             //sustituyendo el punto en la ecuacion de la circunferencia
@@ -864,7 +976,22 @@ namespace G_Wall_E
             return a >= min && a <= max;
         }
 
+        public static bool Ray_Acot(Ray r, double x, double y)
+        {
+            bool acot_x = false; //si esta en le rango de las x
+            bool acot_y = false; //si esta en le rango de las y
 
+            //si el rayo se desplaza hacia la izquierda 
+            if (r.P1.X > r.P2.X && x <= r.P1.X) acot_x = true;
+            //si el rayo se desplaza hacia la derecha
+            else if (r.P1.X < r.P2.X && x >= r.P1.X) acot_x = true;
+            //si el rayo se desplaza hacia abajo
+            if (r.P1.Y > r.P2.Y && y <= r.P1.Y) acot_y = true;
+            //si el rayo se desplaza hacia arriba
+            else if (r.P1.Y < r.P2.Y && y >= r.P1.Y) acot_y = true;
+
+            return acot_x && acot_y;
+        }
         public static double Distancia_Punto_Recta(Point punto, Point recta_p1, Point recta_p2)
         {
             double distance;
