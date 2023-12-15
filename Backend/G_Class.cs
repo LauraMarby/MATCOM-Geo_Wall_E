@@ -235,7 +235,7 @@ namespace G_Wall_E
         public Measure Distance { get; set; }
         public string Msg { get; set; }
 
-        public Arc(string color, string name)
+        public Arc(string name, string color)
         {
             Color = color;
             Name = name;
@@ -245,7 +245,7 @@ namespace G_Wall_E
             Distance = new Measure(color, name, P1, P3);
         } 
 
-        public Arc(string color, string name, Point p1, Point p2, Point p3, Measure distance)
+        public Arc(string name, string color, Point p1, Point p2, Point p3, Measure distance)
         {
             Color = color;
             Name = name;

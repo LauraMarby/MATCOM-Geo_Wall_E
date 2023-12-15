@@ -92,10 +92,10 @@ namespace G_Wall_E
                 if (angle >= Math.Min(angle1, angle2) && angle <= Math.Max(angle1, angle2))
                 {
                     // Calcular la distancia del punto al centro del arco
-                    double distance = Math.Sqrt(dx * dx + dy * dy);
+                    double distance = Math.Sqrt((dx * dx) + (dy * dy));
 
                     // Si la distancia es igual al radio del arco, hay una intersección
-                    if (distance <= radius)
+                    if (distance == radius)
                     {
                         return true;
                     }

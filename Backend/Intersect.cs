@@ -117,7 +117,7 @@ namespace G_Wall_E
             {
                 var xr = (l2_n - l1_n) / (l1_m - l2_m);
                 var yr = l1_m * xr + l1_n;
-                return new PointSequence(new List<Point>() { new Point("_intersect_", color, xr, yr) });
+                return new PointSequence(new List<Point>() { new Point("intersect", color, xr, yr) });
             }
         }
 
@@ -154,7 +154,7 @@ namespace G_Wall_E
                 //si esta acotada intercepta
                 if (Is_Acot(xr, x_min, x_max) && Is_Acot(yr, y_min, y_max))
                 {
-                    return new PointSequence(new List<Point>() { new Point("_intersect_", color, xr, yr) });
+                    return new PointSequence(new List<Point>() { new Point("intersect", color, xr, yr) });
                 }
                 //no esta acotada
                 else return new PointSequence(new List<Point>());
@@ -185,7 +185,7 @@ namespace G_Wall_E
                 var yr = l_m * xr + l_n;
 
                 //si esta acotada, es intercepto
-                if (Ray_Acot(r, xr, yr)) return new PointSequence(new List<Point>() { new Point("_intersect_", color, xr, yr) });
+                if (Ray_Acot(r, xr, yr)) return new PointSequence(new List<Point>() { new Point("intersect", color, xr, yr) });
                 //si no lo esta, no lo es
                 else return new PointSequence(new List<Point>());
             }
@@ -221,11 +221,11 @@ namespace G_Wall_E
                     {
                         double Y = a.P1.Y + Math.Sqrt((radius * radius) - ((X - a.P1.X) * (X - a.P1.X)));
 
-                        if (Is_Acot(Y, y_min, y_max)) Result.Add(new Point("_intersection_", color, X, Y));
+                        if (Is_Acot(Y, y_min, y_max)) Result.Add(new Point("intersection", color, X, Y));
 
                         Y = a.P1.Y - Math.Sqrt((radius * radius) - ((X - a.P1.X) * (X - a.P1.X)));
 
-                        if (Is_Acot(Y, y_min, y_max)) Result.Add(new Point("_intersection_", color, X, Y));
+                        if (Is_Acot(Y, y_min, y_max)) Result.Add(new Point("intersection", color, X, Y));
                     }
 
                 }
@@ -246,7 +246,7 @@ namespace G_Wall_E
                         double Y = (m * X) + n;
                         if (Is_Acot(X, x_min, x_max) && Is_Acot(Y, y_min, y_max))
                         {
-                            Result.Add(new Point("_intersection_", color, X, Y));
+                            Result.Add(new Point("intersection", color, X, Y));
                         }
                     }
                     //Si no es 0, tiene 2 intersecciones
@@ -255,12 +255,12 @@ namespace G_Wall_E
                         double X = ((-B) + Math.Sqrt(Discriminante)) / (2 * A);
                         double Y = (m * X) + n;
 
-                        if (Is_Acot(X, x_min, x_max) && Is_Acot(Y, y_min, y_max)) Result.Add(new Point("_intersection_", color, X, Y));
+                        if (Is_Acot(X, x_min, x_max) && Is_Acot(Y, y_min, y_max)) Result.Add(new Point("intersection", color, X, Y));
 
                         X = ((-B) - Math.Sqrt(Discriminante)) / (2 * A);
                         Y = (m * X) + n;
 
-                        if (Is_Acot(X, x_min, x_max) && Is_Acot(Y, y_min, y_max)) Result.Add(new Point("_intersection_", color, X, Y));
+                        if (Is_Acot(X, x_min, x_max) && Is_Acot(Y, y_min, y_max)) Result.Add(new Point("intersection", color, X, Y));
                     }
                 }
             }
@@ -287,9 +287,9 @@ namespace G_Wall_E
                 {
                     double X = l.P1.X;
                     double Y = c.P1.Y + Math.Sqrt((radius * radius) - ((X - c.P1.X) * (X - c.P1.X)));
-                    Result.Add(new Point("_intersection_", color, X, Y));
+                    Result.Add(new Point("intersection", color, X, Y));
                     Y = c.P1.Y - Math.Sqrt((radius * radius) - ((X - c.P1.X) * (X - c.P1.X)));
-                    Result.Add(new Point("_intersection_", color, X, Y));
+                    Result.Add(new Point("intersection", color, X, Y));
                 }
                 else
                 {
@@ -306,17 +306,17 @@ namespace G_Wall_E
                     {
                         double X = (-B) / (2 * A);
                         double Y = (m * X) + n;
-                        Result.Add(new Point("_intersection_", color, X, Y));
+                        Result.Add(new Point("intersection", color, X, Y));
                     }
                     //Si no es 0, tiene 2 intersecciones
                     else
                     {
                         double X = ((-B) + Math.Sqrt(Discriminante)) / (2 * A);
                         double Y = (m * X) + n;
-                        Result.Add(new Point("_intersection_", color, X, Y));
+                        Result.Add(new Point("intersection", color, X, Y));
                         X = ((-B) - Math.Sqrt(Discriminante)) / (2 * A);
                         Y = (m * X) + n;
-                        Result.Add(new Point("_intersection_", color, X, Y));
+                        Result.Add(new Point("intersection", color, X, Y));
                     }
                 }
             }
@@ -364,7 +364,7 @@ namespace G_Wall_E
                 //si esta acotada intercepta
                 if (Is_Acot(xr, x_min_1, x_max_1) && Is_Acot(yr, y_min_1, y_max_1) && Is_Acot(xr, x_min_2, x_max_2) && Is_Acot(yr, y_min_2, y_max_2))
                 {
-                    return new PointSequence(new List<Point>() { new Point("_intersect_", color, xr, yr) });
+                    return new PointSequence(new List<Point>() { new Point("intersect", color, xr, yr) });
                 }
                 //no esta acotada
                 else return new PointSequence(new List<Point>());
@@ -404,7 +404,7 @@ namespace G_Wall_E
                 //es intercepto
                 if (Ray_Acot(r, xr, yr) && Is_Acot(xr, x_min, x_max) && Is_Acot(yr, y_min, y_max))
                 {
-                    return new PointSequence(new List<Point>() { new Point("_intersect_", color, xr, yr) });
+                    return new PointSequence(new List<Point>() { new Point("intersect", color, xr, yr) });
                 }
                 //si no lo esta, no lo es
                 else return new PointSequence(new List<Point>());
@@ -448,11 +448,11 @@ namespace G_Wall_E
                     {
                         double Y = a.P1.Y + Math.Sqrt((radius * radius) - ((X - a.P1.X) * (X - a.P1.X)));
 
-                        if (Is_Acot(Y, y_min_1, y_max_1) && Is_Acot(Y, y_min_2, y_max_2)) Result.Add(new Point("_intersection_", color, X, Y));
+                        if (Is_Acot(Y, y_min_1, y_max_1) && Is_Acot(Y, y_min_2, y_max_2)) Result.Add(new Point("intersection", color, X, Y));
 
                         Y = a.P1.Y - Math.Sqrt((radius * radius) - ((X - a.P1.X) * (X - a.P1.X)));
 
-                        if (Is_Acot(Y, y_min_1, y_max_1) && Is_Acot(Y, y_min_2, y_max_2)) Result.Add(new Point("_intersection_", color, X, Y));
+                        if (Is_Acot(Y, y_min_1, y_max_1) && Is_Acot(Y, y_min_2, y_max_2)) Result.Add(new Point("intersection", color, X, Y));
                     }
 
                 }
@@ -473,7 +473,7 @@ namespace G_Wall_E
                         double Y = (m * X) + n;
                         if (Is_Acot(X, x_min_1, x_max_1) && Is_Acot(X, x_min_2, x_max_2) && Is_Acot(Y, y_min_1, y_max_1) && Is_Acot(Y, y_min_2, y_max_2))
                         {
-                            Result.Add(new Point("_intersection_", color, X, Y));
+                            Result.Add(new Point("intersection", color, X, Y));
                         }
                     }
                     //Si no es 0, tiene 2 intersecciones
@@ -482,12 +482,12 @@ namespace G_Wall_E
                         double X = ((-B) + Math.Sqrt(Discriminante)) / (2 * A);
                         double Y = (m * X) + n;
 
-                        if (Is_Acot(X, x_min_1, x_max_1) && Is_Acot(X, x_min_2, x_max_2) && Is_Acot(Y, y_min_1, y_max_1) && Is_Acot(Y, y_min_2, y_max_2)) Result.Add(new Point("_intersection_", color, X, Y));
+                        if (Is_Acot(X, x_min_1, x_max_1) && Is_Acot(X, x_min_2, x_max_2) && Is_Acot(Y, y_min_1, y_max_1) && Is_Acot(Y, y_min_2, y_max_2)) Result.Add(new Point("intersection", color, X, Y));
 
                         X = ((-B) - Math.Sqrt(Discriminante)) / (2 * A);
                         Y = (m * X) + n;
 
-                        if (Is_Acot(X, x_min_1, x_max_1) && Is_Acot(X, x_min_2, x_max_2) && Is_Acot(Y, y_min_1, y_max_1) && Is_Acot(Y, y_min_2, y_max_2)) Result.Add(new Point("_intersection_", color, X, Y));
+                        if (Is_Acot(X, x_min_1, x_max_1) && Is_Acot(X, x_min_2, x_max_2) && Is_Acot(Y, y_min_1, y_max_1) && Is_Acot(Y, y_min_2, y_max_2)) Result.Add(new Point("intersection", color, X, Y));
                     }
                 }
             }
@@ -524,11 +524,11 @@ namespace G_Wall_E
                     {
                         double Y = c.P1.Y + Math.Sqrt((radius * radius) - ((X - c.P1.X) * (X - c.P1.X)));
 
-                        if (Is_Acot(Y, y_min, y_max)) Result.Add(new Point("_intersection_", color, X, Y));
+                        if (Is_Acot(Y, y_min, y_max)) Result.Add(new Point("intersection", color, X, Y));
 
                         Y = c.P1.Y - Math.Sqrt((radius * radius) - ((X - c.P1.X) * (X - c.P1.X)));
 
-                        if (Is_Acot(Y, y_min, y_max)) Result.Add(new Point("_intersection_", color, X, Y));
+                        if (Is_Acot(Y, y_min, y_max)) Result.Add(new Point("intersection", color, X, Y));
                     }
                 }
                 else
@@ -547,7 +547,7 @@ namespace G_Wall_E
                         double X = (-B) / (2 * A);
                         double Y = (m * X) + n;
 
-                        if (Is_Acot(X, x_min, x_max) && Is_Acot(Y, y_min, y_max)) Result.Add(new Point("_intersection_", color, X, Y));
+                        if (Is_Acot(X, x_min, x_max) && Is_Acot(Y, y_min, y_max)) Result.Add(new Point("intersection", color, X, Y));
                     }
                     //Si no es 0, tiene 2 intersecciones
                     else
@@ -555,12 +555,12 @@ namespace G_Wall_E
                         double X = ((-B) + Math.Sqrt(Discriminante)) / (2 * A);
                         double Y = (m * X) + n;
 
-                        if (Is_Acot(X, x_min, x_max) && Is_Acot(Y, y_min, y_max)) Result.Add(new Point("_intersection_", color, X, Y));
+                        if (Is_Acot(X, x_min, x_max) && Is_Acot(Y, y_min, y_max)) Result.Add(new Point("intersection", color, X, Y));
 
                         X = ((-B) - Math.Sqrt(Discriminante)) / (2 * A);
                         Y = (m * X) + n;
 
-                        if (Is_Acot(X, x_min, x_max) && Is_Acot(Y, y_min, y_max)) Result.Add(new Point("_intersection_", color, X, Y));
+                        if (Is_Acot(X, x_min, x_max) && Is_Acot(Y, y_min, y_max)) Result.Add(new Point("intersection", color, X, Y));
                     }
                 }
             }
@@ -594,7 +594,7 @@ namespace G_Wall_E
                 //es intercepto
                 if (Ray_Acot(r1, xr, yr) && Ray_Acot(r2, xr, yr))
                 {
-                    return new PointSequence(new List<Point>() { new Point("_intersect_", color, xr, yr) });
+                    return new PointSequence(new List<Point>() { new Point("intersect", color, xr, yr) });
                 }
                 //si no lo esta, no lo es
                 else return new PointSequence(new List<Point>());
@@ -631,11 +631,11 @@ namespace G_Wall_E
                     {
                         double Y = a.P1.Y + Math.Sqrt((radius * radius) - ((X - a.P1.X) * (X - a.P1.X)));
 
-                        if (Is_Acot(Y, y_min, y_max) && Ray_Acot(p, X, Y)) Result.Add(new Point("_intersection_", color, X, Y));
+                        if (Is_Acot(Y, y_min, y_max) && Ray_Acot(p, X, Y)) Result.Add(new Point("intersection", color, X, Y));
 
                         Y = a.P1.Y - Math.Sqrt((radius * radius) - ((X - a.P1.X) * (X - a.P1.X)));
 
-                        if (Is_Acot(Y, y_min, y_max) && Ray_Acot(p, X, Y)) Result.Add(new Point("_intersection_", color, X, Y));
+                        if (Is_Acot(Y, y_min, y_max) && Ray_Acot(p, X, Y)) Result.Add(new Point("intersection", color, X, Y));
                     }
 
                 }
@@ -656,7 +656,7 @@ namespace G_Wall_E
                         double Y = (m * X) + n;
                         if (Is_Acot(X, x_min, x_max) && Is_Acot(Y, y_min, y_max) && Ray_Acot(p, X, Y))
                         {
-                            Result.Add(new Point("_intersection_", color, X, Y));
+                            Result.Add(new Point("intersection", color, X, Y));
                         }
                     }
                     //Si no es 0, tiene 2 intersecciones
@@ -665,12 +665,12 @@ namespace G_Wall_E
                         double X = ((-B) + Math.Sqrt(Discriminante)) / (2 * A);
                         double Y = (m * X) + n;
 
-                        if (Is_Acot(X, x_min, x_max) && Is_Acot(Y, y_min, y_max) && Ray_Acot(p, X, Y)) Result.Add(new Point("_intersection_", color, X, Y));
+                        if (Is_Acot(X, x_min, x_max) && Is_Acot(Y, y_min, y_max) && Ray_Acot(p, X, Y)) Result.Add(new Point("intersection", color, X, Y));
 
                         X = ((-B) - Math.Sqrt(Discriminante)) / (2 * A);
                         Y = (m * X) + n;
 
-                        if (Is_Acot(X, x_min, x_max) && Is_Acot(Y, y_min, y_max) && Ray_Acot(p, X, Y)) Result.Add(new Point("_intersection_", color, X, Y));
+                        if (Is_Acot(X, x_min, x_max) && Is_Acot(Y, y_min, y_max) && Ray_Acot(p, X, Y)) Result.Add(new Point("intersection", color, X, Y));
                     }
                 }
             }
@@ -699,11 +699,11 @@ namespace G_Wall_E
 
                     double Y = c.P1.Y + Math.Sqrt((radius * radius) - ((X - c.P1.X) * (X - c.P1.X)));
 
-                    if (Ray_Acot(s, X, Y)) Result.Add(new Point("_intersection_", color, X, Y));
+                    if (Ray_Acot(s, X, Y)) Result.Add(new Point("intersection", color, X, Y));
 
                     Y = c.P1.Y - Math.Sqrt((radius * radius) - ((X - c.P1.X) * (X - c.P1.X)));
 
-                    if (Ray_Acot(s, X, Y)) Result.Add(new Point("_intersection_", color, X, Y));
+                    if (Ray_Acot(s, X, Y)) Result.Add(new Point("intersection", color, X, Y));
                 }
                 else
                 {
@@ -721,7 +721,7 @@ namespace G_Wall_E
                         double X = (-B) / (2 * A);
                         double Y = (m * X) + n;
 
-                        if (Ray_Acot(s, X, Y)) Result.Add(new Point("_intersection_", color, X, Y));
+                        if (Ray_Acot(s, X, Y)) Result.Add(new Point("intersection", color, X, Y));
                     }
                     //Si no es 0, tiene 2 intersecciones
                     else
@@ -729,12 +729,12 @@ namespace G_Wall_E
                         double X = ((-B) + Math.Sqrt(Discriminante)) / (2 * A);
                         double Y = (m * X) + n;
 
-                        if (Ray_Acot(s, X, Y)) Result.Add(new Point("_intersection_", color, X, Y));
+                        if (Ray_Acot(s, X, Y)) Result.Add(new Point("intersection", color, X, Y));
 
                         X = ((-B) - Math.Sqrt(Discriminante)) / (2 * A);
                         Y = (m * X) + n;
 
-                        if (Ray_Acot(s, X, Y)) Result.Add(new Point("_intersection_", color, X, Y));
+                        if (Ray_Acot(s, X, Y)) Result.Add(new Point("intersection", color, X, Y));
                     }
                 }
             }
@@ -781,7 +781,7 @@ namespace G_Wall_E
 
                 if (Is_Acot(x, x_min_1, x_max_1) && Is_Acot(x, x_min_2, x_max_2) && Is_Acot(y, y_min_2, y_max_2) && Is_Acot(y, y_min_1, y_max_1))
                 {
-                    result.Add(new Point("_intersect_", color, x, y));
+                    result.Add(new Point("intersect", color, x, y));
                 }
                 return new PointSequence(result);
             }
@@ -809,7 +809,7 @@ namespace G_Wall_E
 
                 if (Is_Acot(X, x_min_1, x_max_1) && Is_Acot(X, x_min_2, x_max_2) && Is_Acot(Y, y_min_2, y_max_2) && Is_Acot(Y, y_min_1, y_max_1))
                 {
-                    result.Add(new Point("_intersect_", color, X, Y));
+                    result.Add(new Point("intersect", color, X, Y));
                 }
 
                 X = x + h * v;
@@ -817,7 +817,7 @@ namespace G_Wall_E
 
                 if (Is_Acot(X, x_min_1, x_max_1) && Is_Acot(X, x_min_2, x_max_2) && Is_Acot(Y, y_min_2, y_max_2) && Is_Acot(Y, y_min_1, y_max_1))
                 {
-                    result.Add(new Point("_intersect_", color, X, Y));
+                    result.Add(new Point("intersect", color, X, Y));
                 }
                 return new PointSequence(result);
             }
@@ -856,7 +856,7 @@ namespace G_Wall_E
 
                 if (Is_Acot(x, x_min, x_max) && Is_Acot(y, y_min, y_max))
                 {
-                    result.Add(new Point("_intersect_", color, x, y));
+                    result.Add(new Point("intersect", color, x, y));
                 }
                 return new PointSequence(result);
             }
@@ -884,7 +884,7 @@ namespace G_Wall_E
 
                 if (Is_Acot(x, x_min, x_max) && Is_Acot(y, y_min, y_max))
                 {
-                    result.Add(new Point("_intersect_", color, X, Y));
+                    result.Add(new Point("intersect", color, X, Y));
                 }
 
                 X = x + h * v;
@@ -892,7 +892,7 @@ namespace G_Wall_E
 
                 if (Is_Acot(x, x_min, x_max) && Is_Acot(y, y_min, y_max))
                 {
-                    result.Add(new Point("_intersect_", color, X, Y));
+                    result.Add(new Point("intersect", color, X, Y));
                 }
                 return new PointSequence(result);
             }
@@ -922,7 +922,7 @@ namespace G_Wall_E
                 var x = (c1.P1.X * radius_2 + c2.P1.X * radius_1) / (radius_1 + radius_2);
                 var y = (c1.P1.Y * radius_2 + c2.P1.Y * radius_1) / (radius_1 + radius_2);
 
-                result.Add(new Point("_intersect_", color, x, y));
+                result.Add(new Point("intersect", color, x, y));
                 return new PointSequence(result);
             }
 
@@ -944,8 +944,8 @@ namespace G_Wall_E
                 var v = (c2.P1.Y - c1.P1.Y) / distance;
                 var w = (c2.P1.X - c1.P1.X) / distance;
 
-                result.Add(new Point("_intersect_", color, x - h * v, y + h * w));
-                result.Add(new Point("_intersect_", color, x + h * v, y - h * w));
+                result.Add(new Point("intersect", color, x - h * v, y + h * w));
+                result.Add(new Point("intersect", color, x + h * v, y - h * w));
 
                 return new PointSequence(result);
             }

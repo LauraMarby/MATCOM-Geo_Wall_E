@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using INTERPRETE_C_to_HULK;
 using G_Wall_E;
 using System.Numerics;
+using System.Linq.Expressions;
 
 namespace INTERPRETE_C__to_HULK
 {
@@ -45,7 +46,7 @@ namespace INTERPRETE_C__to_HULK
 				{"false",false},
 			};
 
-			FigureColor = "black";
+			FigureColor = "white";
 			Drawables = new List<IDrawable>();
 		}
 
@@ -119,7 +120,7 @@ namespace INTERPRETE_C__to_HULK
 					break;
 				//Si el nodo es restore, igualar figurecolor a negro;
 				case "restore":
-					FigureColor = "black";
+					FigureColor = "white";
 					break;
 				case "import":
 					Evaluate(node.Children[0]);
@@ -136,7 +137,11 @@ namespace INTERPRETE_C__to_HULK
 					(bool u2_b, int u2_i) = IsSequence(right_unknown);
 
 					if (u1_b || u2_b)
-					{
+					{   //si una secuencia esta vacia retorna la otra
+						if (left_unknown == "empty_seq" && right_unknown == "empty_seq") return "empty_seq";
+						else if (left_unknown == "empty_seq") return right_unknown;
+						else if (right_unknown == "empty_seq") return left_unknown;
+
 						//si se trata de dos secuencias, concatenarlas
 						if (u1_b && u2_b && u1_i == u2_i)
 						{
@@ -445,6 +450,11 @@ namespace INTERPRETE_C__to_HULK
 						else if (kind_s == 5) Draw_Sequence((ArcSequence)figures);
 						else if (kind_s == 6) Draw_Sequence((CircleSequence)figures);
 					}
+					else if (figures is string)
+					{
+						if (figures == "undefined") Input_Error("Infinie or undefined sequences can't be drawed");
+						else if (figures == "empty_seq") break;
+					}
 					//si es solo una figura
 					else
 					{
@@ -453,6 +463,26 @@ namespace INTERPRETE_C__to_HULK
 						if (node.Children[1].Type != "empty")
 						{
 							fig.Msg = Evaluate(node.Children[1]).ToString();
+						}
+
+						//nuevo de camila
+						if (node.Children[2].Type == "not_save")
+						{
+							string _key = string.Empty;
+
+							foreach (var key in Scopes[Scopes.Count - 1].Keys)
+							{
+								if (key.StartsWith("_"))
+								{
+									_key = key;
+									break;
+								}
+							}
+
+							if (_key != string.Empty)
+							{
+								Scopes[Scopes.Count - 1].Remove(_key);
+							}
 						}
 
 						Drawables.Add(fig);
@@ -515,15 +545,15 @@ namespace INTERPRETE_C__to_HULK
 
 					else if (f_f1 == 2)
 					{
-						if (f_f2 == 2) return Intersect_Methods.Intersect((Line)f1, (Line)f2 , FigureColor);
+						if (f_f2 == 2) return Intersect_Methods.Intersect((Line)f1, (Line)f2, FigureColor);
 
-						else if (f_f2 == 3) return Intersect_Methods.Intersect((Line)f1, (Segment)f2 , FigureColor);
+						else if (f_f2 == 3) return Intersect_Methods.Intersect((Line)f1, (Segment)f2, FigureColor);
 
-						else if (f_f2 == 4) return Intersect_Methods.Intersect((Line)f1, (Ray)f2 , FigureColor);
+						else if (f_f2 == 4) return Intersect_Methods.Intersect((Line)f1, (Ray)f2, FigureColor);
 
-						else if (f_f2 == 5) return Intersect_Methods.Intersect((Line)f1, (Arc)f2 , FigureColor);
+						else if (f_f2 == 5) return Intersect_Methods.Intersect((Line)f1, (Arc)f2, FigureColor);
 
-						else if (f_f2 == 6) return Intersect_Methods.Intersect((Line)f1, (Circle)f2 , FigureColor);
+						else if (f_f2 == 6) return Intersect_Methods.Intersect((Line)f1, (Circle)f2, FigureColor);
 
 						else Input_Error("Invalid parameters in intersect call");
 						break;
@@ -531,13 +561,13 @@ namespace INTERPRETE_C__to_HULK
 
 					else if (f_f1 == 3)
 					{
-						if (f_f2 == 3) return Intersect_Methods.Intersect((Segment)f1, (Segment)f2 , FigureColor);
+						if (f_f2 == 3) return Intersect_Methods.Intersect((Segment)f1, (Segment)f2, FigureColor);
 
-						else if (f_f2 == 4) return Intersect_Methods.Intersect((Segment)f1, (Ray)f2 , FigureColor);
+						else if (f_f2 == 4) return Intersect_Methods.Intersect((Segment)f1, (Ray)f2, FigureColor);
 
-						else if (f_f2 == 5) return Intersect_Methods.Intersect((Segment)f1, (Arc)f2 , FigureColor);
+						else if (f_f2 == 5) return Intersect_Methods.Intersect((Segment)f1, (Arc)f2, FigureColor);
 
-						else if (f_f2 == 6) return Intersect_Methods.Intersect((Segment)f1, (Circle)f2 , FigureColor);
+						else if (f_f2 == 6) return Intersect_Methods.Intersect((Segment)f1, (Circle)f2, FigureColor);
 
 						else Input_Error("Invalid parameters in intersect call");
 						break;
@@ -545,11 +575,11 @@ namespace INTERPRETE_C__to_HULK
 
 					else if (f_f1 == 4)
 					{
-						if (f_f2 == 4) return Intersect_Methods.Intersect((Ray)f1, (Ray)f2 , FigureColor);
+						if (f_f2 == 4) return Intersect_Methods.Intersect((Ray)f1, (Ray)f2, FigureColor);
 
-						else if (f_f2 == 5) return Intersect_Methods.Intersect((Ray)f1, (Arc)f2 , FigureColor);
+						else if (f_f2 == 5) return Intersect_Methods.Intersect((Ray)f1, (Arc)f2, FigureColor);
 
-						else if (f_f2 == 6) return Intersect_Methods.Intersect((Ray)f1, (Circle)f2 , FigureColor);
+						else if (f_f2 == 6) return Intersect_Methods.Intersect((Ray)f1, (Circle)f2, FigureColor);
 
 						else Input_Error("Invalid parameters in intersect call");
 						break;
@@ -557,9 +587,9 @@ namespace INTERPRETE_C__to_HULK
 
 					else if (f_f1 == 5)
 					{
-						if (f_f2 == 5) return Intersect_Methods.Intersect((Arc)f1, (Arc)f2 , FigureColor);
+						if (f_f2 == 5) return Intersect_Methods.Intersect((Arc)f1, (Arc)f2, FigureColor);
 
-						else if (f_f2 == 6) return Intersect_Methods.Intersect((Arc)f1, (Circle)f2 , FigureColor);
+						else if (f_f2 == 6) return Intersect_Methods.Intersect((Arc)f1, (Circle)f2, FigureColor);
 
 						else Input_Error("Invalid parameters in intersect call");
 						break;
@@ -567,7 +597,7 @@ namespace INTERPRETE_C__to_HULK
 
 					else if (f_f1 == 6)
 					{
-						if (f_f2 == 6) return Intersect_Methods.Intersect((Circle)f1, (Circle)f2 , FigureColor);
+						if (f_f2 == 6) return Intersect_Methods.Intersect((Circle)f1, (Circle)f2, FigureColor);
 
 						else Input_Error("Invalid parameters in intersect call");
 						break;
@@ -681,11 +711,23 @@ namespace INTERPRETE_C__to_HULK
 				//dependiendo de si la condición es verdadera o falsa
 				case "Conditional":
 					object? condition = Evaluate(node.Children[0]);
+
 					Expected(condition, "bool", "if");
-					if ((bool)condition)
+
+					//si es una secuencia, si esta vacia o  es undefined, devuelve false, si tiene elementos devuelve true
+					(bool is_sequence, int a) = IsSequence(condition);
+					if (is_sequence) return Evaluate_Sequence_As_Boolean(a, condition, node);
+
+					//si es undefined, devuelve la expresion del else
+					else if (condition is string && (condition == "undefined" || condition == "empty_seq")) return Evaluate(node.Children[2]);
+
+					//si es un numero o expresion booleana se evalua 
+					if (Convert.ToBoolean(condition) && (condition is double || condition is bool))
 					{
 						return Evaluate(node.Children[1]);
 					}
+
+					//si no es ninguna de las anteriores, devuelve false
 					return Evaluate(node.Children[2]);
 				// Si el nodo es una función, crea una nueva función y la añade a la lista de funciones declaradas
 				case "function":
@@ -834,6 +876,9 @@ namespace INTERPRETE_C__to_HULK
 					var sec_l = new List<object>();
 
 					foreach (Node child in node.Children) sec_l.Add(Evaluate(child));
+
+					//si se declara una secuencia vacia explicita, crear una secuencias de puntos vacia, esto esta mal por mi parte
+					if (node.Children.Count == 0) return "empty_seq";
 
 					object sec = Evaluate(node.Children[0]);
 					int sequence_type_1 = IsKind_Seq(sec);
@@ -1082,7 +1127,8 @@ namespace INTERPRETE_C__to_HULK
 			// Para cada parámetro, añade su nombre al diccionario con un valor inicial de null
 			for (int i = 0; i < parameters.Children.Count; i++)
 			{
-				string? name = parameters.Children[i].Value.ToString();
+				Node node = (Node)parameters.Children[i].Value;
+				string? name = node.Value.ToString();
 				Param.Add(name, null);
 			}
 			return Param;
@@ -1169,6 +1215,13 @@ namespace INTERPRETE_C__to_HULK
 				fam = s.Return_Global_Var(seq_asign.Children[0]);
 				Sub_Save_Sequence_Value(fam);
 			}
+			//si es una secuencia vacia, asignarle valores
+			else if (sequence == "empty")
+			{
+				PointSequence s = new PointSequence(new List<Point>());
+				fam = s.Return_Global_Var(seq_asign.Children[0]);
+				Sub_Save_Sequence_Value(fam);
+			}
 			//error
 			else Input_Error("Invalid value asignation, it must be a sequence");
 		}
@@ -1196,6 +1249,7 @@ namespace INTERPRETE_C__to_HULK
 		{
 			foreach (object x in list1)
 			{
+				if (x is not T) Input_Error("Sorry, " + x + " is not a valid type");
 				list2.Add((T)x);
 			}
 		}
@@ -1235,6 +1289,50 @@ namespace INTERPRETE_C__to_HULK
 			if (objectt is IntSequence) return (true, 8);
 			if (objectt is FloatSequence) return (true, 9);
 			return (false, 0);
+		}
+
+		//metodo que evalua la secuencia en el if y determina si representa true o false en el llamado
+		private object Evaluate_Sequence_As_Boolean(int a, object sequence, Node node)
+		{
+			switch (a)
+			{
+				case 1:
+					PointSequence s = (PointSequence)sequence;
+					if ((s.values.Count == 1 && s.values[0].Count == 0) || s.is_undefined) return Evaluate(node.Children[2]);
+					return Evaluate(node.Children[1]);
+				case 2:
+					LineSequence l = (LineSequence)sequence;
+					if ((l.values.Count == 1 && l.values[0].Count == 0) || l.is_undefined) return Evaluate(node.Children[2]);
+					return Evaluate(node.Children[1]);
+				case 3:
+					SegmentSequence ss = (SegmentSequence)sequence;
+					if ((ss.values.Count == 1 && ss.values[0].Count == 0) || ss.is_undefined) return Evaluate(node.Children[2]);
+					return Evaluate(node.Children[1]);
+				case 4:
+					RaySequence r = (RaySequence)sequence;
+					if ((r.values.Count == 1 && r.values[0].Count == 0) || r.is_undefined) return Evaluate(node.Children[2]);
+					return Evaluate(node.Children[1]);
+				case 5:
+					ArcSequence aa = (ArcSequence)sequence;
+					if ((aa.values.Count == 1 && aa.values[0].Count == 0) || aa.is_undefined) return Evaluate(node.Children[2]);
+					return Evaluate(node.Children[1]);
+				case 6:
+					CircleSequence c = (CircleSequence)sequence;
+					if ((c.values.Count == 1 && c.values[0].Count == 0) || c.is_undefined) return Evaluate(node.Children[2]);
+					return Evaluate(node.Children[1]);
+				case 7:
+					StringSequence sss = (StringSequence)sequence;
+					if ((sss.values.Count == 1 && sss.values[0].Count == 0) || sss.is_undefined) return Evaluate(node.Children[2]);
+					return Evaluate(node.Children[1]);
+				case 8:
+					IntSequence i = (IntSequence)sequence;
+					if ((i.values.Count == 1 && i.values[0].Count == 0) || i.is_undefined) return Evaluate(node.Children[2]);
+					return Evaluate(node.Children[1]);
+				default:
+					FloatSequence f = (FloatSequence)sequence;
+					if ((f.values.Count == 1 && f.values[0].Count == 0) || f.is_undefined) return Evaluate(node.Children[2]);
+					return Evaluate(node.Children[1]);
+			}
 		}
 
 		/*private void Evaluate_Sequences_Inside_A_Sequence<T>(ISequence<T> sequence, List<ISequence<T>> list)
@@ -1422,24 +1520,25 @@ namespace INTERPRETE_C__to_HULK
 
 			if (v1_type == type) return;
 
-			//switch(type)
-			//{
-			//    case "string":
-			//        if(value1 is string)
-			//            return;
-			//        break;
-			//    case "number":
-			//        if(value1 is double)
-			//            return;
-			//        break;
-			//    case "boolean":
-			//        if(value1 is bool)
-			//            return;
-			//        break;
-			//    default:
-			//        Input_Error("The \'"+ express +"\' expression must receive type \'" + value1 +"\'");
-			//        break;
-			//}
+			switch (type)
+			{
+				case "string":
+					if (value1 is string)
+						return;
+					break;
+				case "number":
+					if (value1 is double)
+						return;
+					break;
+				case "bool":
+					(bool b, _) = IsSequence(value1);
+					if (value1 is bool || value1 is double || b || value1 is string)  //anadido si la expresion booleana es un numero, secuencia o booleana
+						return;
+					break;
+				default:
+					Input_Error("The \'" + express + "\' expression must receive type \'" + value1 + "\'");
+					break;
+			}
 
 			Input_Error("The \'" + express + "\' expression must receive type \'" + type + "\'");
 

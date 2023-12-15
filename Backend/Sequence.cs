@@ -19,7 +19,7 @@ namespace G_Wall_E
             get
             {
                 int count = 0;
-                foreach(var x in values) foreach(var y in x) count++;
+                foreach (var x in values) foreach (var y in x) count++;
                 return count;
             }
         }
@@ -37,7 +37,7 @@ namespace G_Wall_E
             get
             {
                 int count = 0;
-                foreach(var x in values) foreach(var y in x) count++;
+                foreach (var x in values) foreach (var y in x) count++;
                 return count;
             }
         }
@@ -138,8 +138,25 @@ namespace G_Wall_E
                 dynamic var_value;
 
                 //si es una secuencia undefined, asignar valor undefined
-                if (is_undefined) 
+                if (is_undefined)
                 {
+                    var_value = "undefined";
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                }
+
+                //si la secuencia esta vacia, retornar undefined a todas las variables, menos la ultima que sera secuencia vacia
+                if (values.Count() == 1 && values[0].Count() == 0)
+                {
+                    //si es la ultima varible, se le asigna secuencia vacia
+                    if (node.Children.Last() == child)
+                    {
+                        var_value = new PointSequence(new List<Point>());
+                        //lo anado al nodo de familia de variables
+                        var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                        continue;
+                    }
+                    //al resto de variables se les asigna valor undefined
                     var_value = "undefined";
                     var_fam.Children.Add(new Node { Type = name, Value = var_value });
                     continue;
@@ -149,6 +166,8 @@ namespace G_Wall_E
                 else if (node.Children.Last() == child && i > values.Count() - 1)
                 {
                     var_value = new PointSequence(false);
+                    //lo anado al nodo de familia de variables
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
                     continue;
                 }
 
@@ -231,7 +250,7 @@ namespace G_Wall_E
             get
             {
                 int count = 0;
-                foreach(var x in values) foreach(var y in x) count++;
+                foreach (var x in values) foreach (var y in x) count++;
                 return count;
             }
         }
@@ -343,7 +362,21 @@ namespace G_Wall_E
                     var_value = "undefined";
                     var_fam.Children.Add(new Node { Type = name, Value = var_value });
                     continue;
-                } 
+                }
+
+                //si la secuencia esta vacia, retornar undefined a todas las variables, menos la ultima que sera secuencia vacia
+                if (values.Count() == 1 && values[0].Count() == 0)
+                {
+                    //si es la ultima varible, se le asigna secuencia vacia
+                    if (node.Children.Last() == child)
+                    {
+                        var_value = new LineSequence(new List<Line>());
+                    }
+                    //al resto de variables se les asigna valor undefined
+                    var_value = "undefined";
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                }
 
                 //si no alcanzo secuencia para el valor de la variable asignarle una secuencia vacua
                 else if (node.Children.Last() == child && i > values.Count() - 1)
@@ -352,7 +385,7 @@ namespace G_Wall_E
                     continue;
                 }
 
-                else if(i > values.Count() - 1)
+                else if (i > values.Count() - 1)
                 {
                     var_value = "undefined";
                     var_fam.Children.Add(new Node { Type = name, Value = var_value });
@@ -429,7 +462,7 @@ namespace G_Wall_E
             get
             {
                 int count = 0;
-                foreach(var x in values) foreach(var y in x) count++;
+                foreach (var x in values) foreach (var y in x) count++;
                 return count;
             }
         }
@@ -541,16 +574,30 @@ namespace G_Wall_E
                     var_value = "undefined";
                     var_fam.Children.Add(new Node { Type = name, Value = var_value });
                     continue;
-                } 
+                }
+
+                //si la secuencia esta vacia, retornar undefined a todas las variables, menos la ultima que sera secuencia vacia
+                if (values.Count() == 1 && values[0].Count() == 0)
+                {
+                    //si es la ultima varible, se le asigna secuencia vacia
+                    if (node.Children.Last() == child)
+                    {
+                        var_value = new SegmentSequence(new List<Segment>());
+                    }
+                    //al resto de variables se les asigna valor undefined
+                    var_value = "undefined";
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                }
 
                 //si no alcanzo secuencia para el valor de la variable asignarle una secuencia vacua
                 else if (node.Children.Last() == child && i > values.Count() - 1)
                 {
-                    var_value = new LineSequence(false);
+                    var_value = new SegmentSequence(false);
                     continue;
                 }
 
-                else if(i > values.Count() - 1)
+                else if (i > values.Count() - 1)
                 {
                     var_value = "undefined";
                     var_fam.Children.Add(new Node { Type = name, Value = var_value });
@@ -626,7 +673,7 @@ namespace G_Wall_E
             get
             {
                 int count = 0;
-                foreach(var x in values) foreach(var y in x) count++;
+                foreach (var x in values) foreach (var y in x) count++;
                 return count;
             }
         }
@@ -738,16 +785,30 @@ namespace G_Wall_E
                     var_value = "undefined";
                     var_fam.Children.Add(new Node { Type = name, Value = var_value });
                     continue;
-                } 
+                }
+
+                //si la secuencia esta vacia, retornar undefined a todas las variables, menos la ultima que sera secuencia vacia
+                if (values.Count() == 1 && values[0].Count() == 0)
+                {
+                    //si es la ultima varible, se le asigna secuencia vacia
+                    if (node.Children.Last() == child)
+                    {
+                        var_value = new RaySequence(new List<Ray>());
+                    }
+                    //al resto de variables se les asigna valor undefined
+                    var_value = "undefined";
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                }
 
                 //si no alcanzo secuencia para el valor de la variable asignarle una secuencia vacua
                 else if (node.Children.Last() == child && i > values.Count() - 1)
                 {
-                    var_value = new LineSequence(false);
+                    var_value = new RaySequence(false);
                     continue;
                 }
 
-                else if(i > values.Count() - 1)
+                else if (i > values.Count() - 1)
                 {
                     var_value = "undefined";
                     var_fam.Children.Add(new Node { Type = name, Value = var_value });
@@ -823,7 +884,7 @@ namespace G_Wall_E
             get
             {
                 int count = 0;
-                foreach(var x in values) foreach(var y in x) count++;
+                foreach (var x in values) foreach (var y in x) count++;
                 return count;
             }
         }
@@ -935,16 +996,30 @@ namespace G_Wall_E
                     var_value = "undefined";
                     var_fam.Children.Add(new Node { Type = name, Value = var_value });
                     continue;
-                } 
+                }
+
+                //si la secuencia esta vacia, retornar undefined a todas las variables, menos la ultima que sera secuencia vacia
+                if (values.Count() == 1 && values[0].Count() == 0)
+                {
+                    //si es la ultima varible, se le asigna secuencia vacia
+                    if (node.Children.Last() == child)
+                    {
+                        var_value = new CircleSequence(new List<Circle>());
+                    }
+                    //al resto de variables se les asigna valor undefined
+                    var_value = "undefined";
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                }
 
                 //si no alcanzo secuencia para el valor de la variable asignarle una secuencia vacua
                 else if (node.Children.Last() == child && i > values.Count() - 1)
                 {
-                    var_value = new LineSequence(false);
+                    var_value = new CircleSequence(false);
                     continue;
                 }
 
-                else if(i > values.Count() - 1)
+                else if (i > values.Count() - 1)
                 {
                     var_value = "undefined";
                     var_fam.Children.Add(new Node { Type = name, Value = var_value });
@@ -1019,7 +1094,7 @@ namespace G_Wall_E
             get
             {
                 int count = 0;
-                foreach(var x in values) foreach(var y in x) count++;
+                foreach (var x in values) foreach (var y in x) count++;
                 return count;
             }
         }
@@ -1131,16 +1206,30 @@ namespace G_Wall_E
                     var_value = "undefined";
                     var_fam.Children.Add(new Node { Type = name, Value = var_value });
                     continue;
-                } 
+                }
+
+                //si la secuencia esta vacia, retornar undefined a todas las variables, menos la ultima que sera secuencia vacia
+                if (values.Count() == 1 && values[0].Count() == 0)
+                {
+                    //si es la ultima varible, se le asigna secuencia vacia
+                    if (node.Children.Last() == child)
+                    {
+                        var_value = new ArcSequence(new List<Arc>());
+                    }
+                    //al resto de variables se les asigna valor undefined
+                    var_value = "undefined";
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                }
 
                 //si no alcanzo secuencia para el valor de la variable asignarle una secuencia vacua
                 else if (node.Children.Last() == child && i > values.Count() - 1)
                 {
-                    var_value = new LineSequence(false);
+                    var_value = new ArcSequence(false);
                     continue;
                 }
 
-                else if(i > values.Count() - 1)
+                else if (i > values.Count() - 1)
                 {
                     var_value = "undefined";
                     var_fam.Children.Add(new Node { Type = name, Value = var_value });
@@ -1216,7 +1305,7 @@ namespace G_Wall_E
             get
             {
                 int count = 0;
-                foreach(var x in values) foreach(var y in x) count++;
+                foreach (var x in values) foreach (var y in x) count++;
                 return count;
             }
         }
@@ -1308,16 +1397,30 @@ namespace G_Wall_E
                     var_value = "undefined";
                     var_fam.Children.Add(new Node { Type = name, Value = var_value });
                     continue;
-                } 
+                }
+
+                //si la secuencia esta vacia, retornar undefined a todas las variables, menos la ultima que sera secuencia vacia
+                if (values.Count() == 1 && values[0].Count() == 0)
+                {
+                    //si es la ultima varible, se le asigna secuencia vacia
+                    if (node.Children.Last() == child)
+                    {
+                        var_value = new StringSequence(new List<string>());
+                    }
+                    //al resto de variables se les asigna valor undefined
+                    var_value = "undefined";
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                }
 
                 //si no alcanzo secuencia para el valor de la variable asignarle una secuencia vacua
                 else if (node.Children.Last() == child && i > values.Count() - 1)
                 {
-                    var_value = new LineSequence(false);
+                    var_value = new StringSequence(false);
                     continue;
                 }
 
-                else if(i > values.Count() - 1)
+                else if (i > values.Count() - 1)
                 {
                     var_value = "undefined";
                     var_fam.Children.Add(new Node { Type = name, Value = var_value });
@@ -1393,7 +1496,7 @@ namespace G_Wall_E
             get
             {
                 int count = 0;
-                foreach(var x in values) foreach(var y in x) count++;
+                foreach (var x in values) foreach (var y in x) count++;
                 return count;
             }
         }
@@ -1523,16 +1626,30 @@ namespace G_Wall_E
                     var_value = "undefined";
                     var_fam.Children.Add(new Node { Type = name, Value = var_value });
                     continue;
-                } 
+                }
+
+                //si la secuencia esta vacia, retornar undefined a todas las variables, menos la ultima que sera secuencia vacia
+                if (values.Count() == 1 && values[0].Count() == 0)
+                {
+                    //si es la ultima varible, se le asigna secuencia vacia
+                    if (node.Children.Last() == child)
+                    {
+                        var_value = new IntSequence(new List<double>());
+                    }
+                    //al resto de variables se les asigna valor undefined
+                    var_value = "undefined";
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                }
 
                 //si no alcanzo secuencia para el valor de la variable asignarle una secuencia vacua
                 else if (node.Children.Last() == child && i > values.Count() - 1)
                 {
-                    var_value = new LineSequence(false);
+                    var_value = new IntSequence(false);
                     continue;
                 }
 
-                else if(i > values.Count() - 1)
+                else if (i > values.Count() - 1)
                 {
                     var_value = "undefined";
                     var_fam.Children.Add(new Node { Type = name, Value = var_value });
@@ -1638,7 +1755,7 @@ namespace G_Wall_E
             get
             {
                 int count = 0;
-                foreach(var x in values) foreach(var y in x) count++;
+                foreach (var x in values) foreach (var y in x) count++;
                 return count;
             }
         }
@@ -1659,7 +1776,7 @@ namespace G_Wall_E
         public FloatSequence(List<List<float>> values) //constructor para la lista de secuencias, usado en concatenacion
         {
             this.values = values;
-           // Count = 0;
+            // Count = 0;
             /*foreach (var x in values)
             {
                 foreach (var y in x) Count++;
@@ -1745,16 +1862,30 @@ namespace G_Wall_E
                     var_value = "undefined";
                     var_fam.Children.Add(new Node { Type = name, Value = var_value });
                     continue;
-                } 
+                }
+
+                //si la secuencia esta vacia, retornar undefined a todas las variables, menos la ultima que sera secuencia vacia
+                if (values.Count() == 1 && values[0].Count() == 0)
+                {
+                    //si es la ultima varible, se le asigna secuencia vacia
+                    if (node.Children.Last() == child)
+                    {
+                        var_value = new FloatSequence(new List<float>());
+                    }
+                    //al resto de variables se les asigna valor undefined
+                    var_value = "undefined";
+                    var_fam.Children.Add(new Node { Type = name, Value = var_value });
+                    continue;
+                }
 
                 //si no alcanzo secuencia para el valor de la variable asignarle una secuencia vacua
                 else if (node.Children.Last() == child && i > values.Count() - 1)
                 {
-                    var_value = new LineSequence(false);
+                    var_value = new FloatSequence(false);
                     continue;
                 }
 
-                else if(i > values.Count() - 1)
+                else if (i > values.Count() - 1)
                 {
                     var_value = "undefined";
                     var_fam.Children.Add(new Node { Type = name, Value = var_value });
