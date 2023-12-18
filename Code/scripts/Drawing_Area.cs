@@ -10,20 +10,20 @@ public partial class Drawing_Area : Panel
 
 	public bool draw = false;
 
-	Font font = (Font)GD.Load("res://images/font.TTF");
+	Font defaultFont = ThemeDB.FallbackFont; 
+	int defaultFontSize = ThemeDB.FallbackFontSize;
 
 	public override void _Draw()
 	{
 		string text;
-
 		//primero las circunferencias
 		foreach (DrawableProperties f in figures)
 		{
 			if (f.Type == "circle")
 			{
-				DrawCircle(new Vector2((float)f.P1.X, (float)f.P1.Y), (float)f.Radius, Paint(f.Color));
+				DrawArc(new Vector2((float)f.P1.X, (float)f.P1.Y), (float)f.Radius, 0, 7, 100, Paint(f.Color));
 				text = f.Msg;
-				if (text is not null) DrawString(font, new Vector2((float)f.P1.X, (float)f.P1.Y), text, HorizontalAlignment.Left, 500, 20, Colors.White);
+				if (text is not null) DrawString(defaultFont, new Vector2((float)f.P1.X, (float)f.P1.Y), text, HorizontalAlignment.Left, 200, defaultFontSize, Colors.White);
 			}
 		}
 
@@ -37,18 +37,16 @@ public partial class Drawing_Area : Panel
 			if (f.Type == "arc")
 			{
 				//hallar pendiendtes de las recas
-				m1 = ((float)f.P2.Y - (float)f.P1.Y) / ((float)f.P1.X - (float)f.P1.X);
+				m1 = ((float)f.P2.Y - (float)f.P1.Y) / ((float)f.P2.X - (float)f.P1.X);
 				m2 = ((float)f.P3.Y - (float)f.P1.Y) / ((float)f.P3.X - (float)f.P1.X);
-				//hallar angulos con resepecto al eje x
-				angle_1 = (float)Math.Pow(Math.Tan(m1), -1);
-				angle_2 = (float)Math.Pow(Math.Tan(m2), -1);
-
-				if (m1 < 0) angle_1 += (float)Math.PI;
-				if (m2 < 0) angle_2 += (float)Math.PI;
-
-				DrawArc(new Vector2((float)f.P1.X, (float)f.P1.Y), (float)f.Radius, angle_1, angle_2, 2, Paint(f.Color));
+				//hallar angulos con resepecto al eje x (en radianes)
+				//angle_1 = (float)Math.Atan(m1);
+				//angle_2 = (float)Math.Atan(m2);
+				angle_1 = (float)Math.Atan2((float)f.P2.Y - (float)f.P1.Y,(float)f.P2.X - (float)f.P1.X);
+				angle_2 = (float)Math.Atan2((float)f.P3.Y - (float)f.P1.Y,(float)f.P3.X - (float)f.P1.X);
+				DrawArc(new Vector2((float)f.P1.X, (float)f.P1.Y), (float)f.Radius, angle_1, angle_2, 60, Paint(f.Color), 1);
 				text = f.Msg;
-				if (text is not null) DrawString(font, new Vector2((float)f.P1.X, (float)f.P1.Y), text, HorizontalAlignment.Left, 200, 200, Colors.White);
+				if (text is not null) DrawString(defaultFont, new Vector2((float)f.P1.X, (float)f.P1.Y), text, HorizontalAlignment.Left, 200, defaultFontSize, Colors.White);
 			}
 		}
 
@@ -66,7 +64,7 @@ public partial class Drawing_Area : Panel
 
 				DrawLine(points[0], points[1], Paint(f.Color));
 				text = f.Msg;
-				if (text is not null) DrawString(font, new Vector2((float)f.P1.X, (float)f.P1.Y), text, HorizontalAlignment.Left, 200, 200, Colors.White);
+				if (text is not null) DrawString(defaultFont, new Vector2((float)f.P1.X, (float)f.P1.Y), text, HorizontalAlignment.Left, 200, defaultFontSize, Colors.White);
 			}
 		}
 
@@ -77,7 +75,7 @@ public partial class Drawing_Area : Panel
 			{
 				DrawLine(new Vector2((float)f.P1.X, (float)f.P1.Y), new Vector2((float)f.P2.X, (float)f.P2.Y), Paint(f.Color));
 				text = f.Msg;
-				if (text is not null) DrawString(font, new Vector2((float)f.P1.X, (float)f.P1.Y), text, HorizontalAlignment.Left, 200, 200, Colors.White);
+				if (text is not null) DrawString(defaultFont, new Vector2((float)f.P1.X, (float)f.P1.Y), text, HorizontalAlignment.Left, 200, defaultFontSize, Colors.White);
 			}
 		}
 
@@ -88,9 +86,9 @@ public partial class Drawing_Area : Panel
 			{
 				var point = RayBorder(RectIntersection(new Vector2((float)f.P1.X, (float)f.P1.Y), new Vector2((float)f.P2.X, (float)f.P2.Y), 1152, 648, 0, 0), new Vector2((float)f.P1.X, (float)f.P1.Y), new Vector2((float)f.P2.X, (float)f.P2.Y));
 
-				DrawLine(new Vector2((float)f.P1.X, (float)f.P1.Y), point, Colors.Green);
+				DrawLine(new Vector2((float)f.P1.X, (float)f.P1.Y), point, Paint(f.Color));
 				text = f.Msg;
-				if (text is not null) DrawString(font, new Vector2((float)f.P1.X, (float)f.P1.Y), text, HorizontalAlignment.Left, 200, 200, Colors.White);
+				if (text is not null) DrawString(defaultFont, new Vector2((float)f.P1.X, (float)f.P1.Y), text, HorizontalAlignment.Left, 200, defaultFontSize, Colors.White);
 			}
 		}
 
@@ -101,7 +99,7 @@ public partial class Drawing_Area : Panel
 			{
 				DrawCircle(new Vector2((float)f.X, (float)f.Y), 5, Paint(f.Color));
 				text = f.Msg;
-				if (text is not null) DrawString(font, new Vector2((float)f.P1.X, (float)f.P1.Y), text, HorizontalAlignment.Left, 200, 200, Colors.White);
+				if (text is not null) DrawString(defaultFont, new Vector2((float)f.X, (float)f.Y), text, HorizontalAlignment.Left, 200, defaultFontSize, Colors.White);
 			}
 		}
 

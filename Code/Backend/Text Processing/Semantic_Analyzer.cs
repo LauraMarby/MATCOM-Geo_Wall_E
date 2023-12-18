@@ -32,9 +32,7 @@ namespace INTERPRETE_C__to_HULK
 
 		public List<IDrawable> Drawables;
 
-		/// <summary>
-		/// Constructor de la clase Semantic_Analyzer
-		/// </summary>
+		// Constructor de la clase Semantic_Analyzer
 		public Semantic_Analyzer()
 		{
 			// Inicializa el diccionario de variables globales con algunas variables predefinidas
@@ -50,18 +48,14 @@ namespace INTERPRETE_C__to_HULK
 			Drawables = new List<IDrawable>();
 		}
 
-		/// <summary>
-		/// Método para leer el AST generado por el Parser
-		/// </summary>
+		// Método para leer el AST generado por el Parser
 		public void Read_Parser(Node n)
 		{
 			AST = n;
 			Scopes = new List<Dictionary<string, object>> { variables_globales };
 		}
 
-		/// <summary>
-		///  Método para decidir qué acción tomar en función del tipo de nodo
-		/// </summary>
+		//  Método para decidir qué acción tomar en función del tipo de nodo
 		public List<IDrawable> Choice(Node node)
 		{
 			switch (node.Type)
@@ -79,9 +73,7 @@ namespace INTERPRETE_C__to_HULK
 			return Drawables;
 		}
 
-		/// <summary>
-		/// Metodo para Evaluar los Nodos
-		/// </summary>
+		// Metodo para Evaluar los Nodos
 		public object? Evaluate(Node node)
 		{
 			// Dependiendo del tipo de nodo, realiza diferentes operaciones
@@ -113,7 +105,6 @@ namespace INTERPRETE_C__to_HULK
 					return node.Value;
 				case "g_name":
 					return node.Value;
-
 				//Si el nodo es asignacion de color, igualar figurecolor al color asignado
 				case "color_asign":
 					FigureColor = node.Children[0].Value.ToString();
@@ -328,11 +319,17 @@ namespace INTERPRETE_C__to_HULK
 					//si ambas secuencias son undefined, retornar undefined
 					else if (left_unknown == "undefined" && right_unknown == "undefined") return "undefined";
 					//si se trata de otra cosa, realizar la accion normal de la suma
+
 					else
 					{
+						if(right_unknown is Measure && left_unknown is Measure) return (Measure)left_unknown + (Measure)right_unknown;
+						if(right_unknown is Measure && left_unknown is double) return (double)left_unknown + (Measure)right_unknown;
+						if(right_unknown is double && left_unknown is Measure) return (double)right_unknown + (Measure)left_unknown;
 						Type_Expected(right_unknown, left_unknown, "number", "+");
 						return (double)left_unknown + (double)right_unknown;
 					}
+					break;
+					
 
 				case "-":
 				case "*":
@@ -341,15 +338,36 @@ namespace INTERPRETE_C__to_HULK
 				case "%":
 					object? left_a = Evaluate(node.Children[0]);
 					object? right_a = Evaluate(node.Children[1]);
-					Type_Expected(right_a, left_a, "number", "+");
 					switch (node.Type)
 					{
-						//case "+": return (double)left_a + (double)right_a;
-						case "-": return (double)left_a - (double)right_a;
-						case "*": return (double)left_a * (double)right_a;
-						case "/": return (double)left_a / (double)right_a;
-						case "^": return Math.Pow((double)left_a, (double)right_a); ;
-						default: return (double)left_a + (double)right_a;
+						case "-": 
+						if(right_a is Measure && left_a is Measure) return (Measure)left_a - (Measure)right_a;
+						if(right_a is Measure && left_a is double) return (double)left_a - (Measure)right_a;
+						if(right_a is double && left_a is Measure) return (double)right_a - (Measure)left_a;
+						Type_Expected(right_a, left_a, "number", "-");
+						return (double)left_a - (double)right_a;
+
+						case "*": 
+						if(right_a is Measure && left_a is Measure) return (Measure)left_a * (Measure)right_a;
+						if(right_a is Measure && left_a is double) return (double)left_a * (Measure)right_a;
+						if(right_a is double && left_a is Measure) return (double)right_a * (Measure)left_a;
+						Type_Expected(right_a, left_a, "number", "*");
+						return (double)left_a * (double)right_a;
+
+						case "/": 
+						if(right_a is Measure && left_a is Measure) return (Measure)left_a / (Measure)right_a;
+						if(right_a is Measure && left_a is double) return (double)left_a / (Measure)right_a;
+						if(right_a is double && left_a is Measure) return (double)right_a / (Measure)left_a;
+						Type_Expected(right_a, left_a, "number", "/");
+						return (double)left_a / (double)right_a;
+
+						case "^": 
+						Type_Expected(right_a, left_a, "number", "^");
+						return Math.Pow((double)left_a, (double)right_a); 
+
+						default: 
+						Type_Expected(right_a, left_a, "number", "nothing");
+						return (double)left_a + (double)right_a;
 					}
 
 
@@ -491,14 +509,23 @@ namespace INTERPRETE_C__to_HULK
 					break;
 
 				case "measure":
-					string m_name = Evaluate(node.Children[0]).ToString();
-					Point p1 = (Point)Evaluate(node.Children[1]);
-					Point p2 = (Point)Evaluate(node.Children[2]);
+					Point p1 = (Point)Evaluate(node.Children[0]);
+					Point p2 = (Point)Evaluate(node.Children[1]);
 					Measure m = new Measure(FigureColor, "measure", p1, p2);
 
-					Scopes[Scopes.Count - 1].Add(m_name, m);
+					Scopes[Scopes.Count - 1].Add("measure", m);
 
-					return m.Execute();
+					return m;
+
+				case "measure_d":
+					string m_name = Evaluate(node.Children[0]).ToString();
+					Point pd1 = (Point)Evaluate(node.Children[1]);
+					Point pd2 = (Point)Evaluate(node.Children[2]);
+					Measure md = new Measure(FigureColor, m_name, pd1, pd2);
+
+					Scopes[Scopes.Count - 1].Add(m_name, md);
+
+					return md;
 
 				//si el nodo es points, devuelve una secuencia aleatoria de puntos dentro de la figura
 				case "points":
@@ -696,7 +723,7 @@ namespace INTERPRETE_C__to_HULK
 					return value_print;
 				// Si el nodo es una función coseno o seno, evalúa el nodo hijo y retorna el coseno o seno del resultado
 				case "cos":
-					object? value_cos = Evaluate(node.Children[0]);
+					object value_cos = Evaluate(node.Children[0]);
 					return Math.Cos((double)value_cos * (Math.PI / 180));//convirtiendo 
 				case "sin":
 					object? value_sin = Evaluate(node.Children[0]);
@@ -741,14 +768,14 @@ namespace INTERPRETE_C__to_HULK
 					return functions_declared;
 				// Si el nodo es una función declarada, llama a la función y retorna su valor
 				case "declared_function":
-					string? name = node.Children[0].Value.ToString();
+					string name = node.Children[0].Value.ToString();
 					Node param_f = node.Children[1];
 					if (Function_Exist(name))
 					{
 						Dictionary<string, object> Scope_actual = new Dictionary<string, object>();
 						Scopes.Add(Scope_actual);
 						int f_position = Call_Function(functions_declared, name, param_f);
-						object? value = Evaluate(functions_declared[f_position].Operation_Node);
+						object value = Evaluate(functions_declared[f_position].Operation_Node);
 						Scopes.Remove(Scopes[Scopes.Count - 1]);
 						return value;
 					}
@@ -784,6 +811,15 @@ namespace INTERPRETE_C__to_HULK
 					Point point = new Point(name_p, FigureColor);
 					Scopes[Scopes.Count - 1].Add(name_p, point);
 					return point;
+
+				//declaracion de punto definido
+				case "point_def":
+					string name_pd = node.Children[0].Value.ToString();
+					object p1_p = Evaluate(node.Children[1]);
+					object p2_p = Evaluate(node.Children[2]);
+					Point point_def = new Point(name_pd, FigureColor, (double)p1_p, (double)p2_p);
+					Scopes[Scopes.Count - 1].Add(name_pd, point_def);
+					return point_def;
 
 				//declaracion de linea aleatoria
 				case "line_d":
@@ -1110,16 +1146,15 @@ namespace INTERPRETE_C__to_HULK
 				// Si el nodo no coincide con ninguno de los anteriores lanza un error
 				default:
 					throw new Exception("SEMANTIC ERROR: Unknown operator: " + node.Type);
+			
 			}
 			return 0;
 		}
 
 		#region Auxiliar
 
-		/// <summary>
-		/// Metodo para obtener un diccionario con los parametros que se declaran en una funcion
-		/// </summary>
-		private Dictionary<string, dynamic> Get_Var_Param(Node parameters)
+		// Metodo para obtener un diccionario con los parametros que se declaran en una funcion
+		Dictionary<string, dynamic> Get_Var_Param(Node parameters)
 		{
 			// Crea un nuevo diccionario para almacenar los parámetros
 			Dictionary<string, dynamic> Param = new Dictionary<string, dynamic>();
@@ -1135,7 +1170,7 @@ namespace INTERPRETE_C__to_HULK
 		}
 
 		//Metodo para alamacenar y asignar la variable global declarada en codigo
-		private void Save_Global_Var(Node global_var)
+		void Save_Global_Var(Node global_var)
 		{
 			string name = global_var.Children[0].Value.ToString();
 			dynamic value = Evaluate(global_var.Children[1]);
@@ -1150,7 +1185,7 @@ namespace INTERPRETE_C__to_HULK
 		}
 
 		//metodo para almacenar y asignar las variables globales a las que se les asignan valores de una sequencia
-		private void Save_Value_Of_Sequence(Node seq_asign)
+		void Save_Value_Of_Sequence(Node seq_asign)
 		{
 			//evaluar la secuencia 
 			var sequence = Evaluate(seq_asign.Children[1].Children[0]);
@@ -1226,7 +1261,7 @@ namespace INTERPRETE_C__to_HULK
 			else Input_Error("Invalid value asignation, it must be a sequence");
 		}
 
-		private void Sub_Save_Sequence_Value(Node fam)
+		void Sub_Save_Sequence_Value(Node fam)
 		{
 			//itero por las variables con sus valores y las guardo en el diccionario
 			foreach (Node child in fam.Children)
@@ -1237,15 +1272,16 @@ namespace INTERPRETE_C__to_HULK
 				// Si el nombre de la variable coincide con el nombre de una función existente, lanza una excepción
 				if (Function_Exist(name)) Input_Error("The variable " + name + " already has a definition as a function in the current context");
 
+				//Note - Change variables_globales to Scope
 				//si la variable ya existe en el diccionario, lanzar excepcion
-				if (variables_globales.ContainsKey(name)) Input_Error("The variable " + name + " already has a definition in the current context");
+				if (Scopes[Scopes.Count - 1].ContainsKey(name)) Input_Error("The variable " + name + " already has a definition in the current context");
 
-				else variables_globales.Add(name, value);
+				else Scopes[Scopes.Count - 1].Add(name, value);
 			}
 		}
 
-		//metoo para intentar cconvertir los elementos de una lista de objects a un tipo T
-		private void TryConvert<T>(List<object> list1, List<T> list2)
+		//metodo para intentar convertir los elementos de una lista de objects a un tipo T
+		void TryConvert<T>(List<object> list1, List<T> list2)
 		{
 			foreach (object x in list1)
 			{
@@ -1255,14 +1291,14 @@ namespace INTERPRETE_C__to_HULK
 		}
 
 		//saber si un object es int
-		private bool IsInt(string objectt)
+		bool IsInt(string objectt)
 		{
 			foreach (char x in objectt) if (x == '.' || !char.IsDigit(x)) return false;
 			return true;
 		}
 
 		//metodo para saber si un objeto contenido en una lista es valido para una secuencia
-		private int IsKind_Seq(object figure)
+		int IsKind_Seq(object figure)
 		{
 			if (figure is Point) return 1;
 			if (figure is Line) return 2;
@@ -1277,7 +1313,7 @@ namespace INTERPRETE_C__to_HULK
 		}
 
 		//saber si un objecto es una secuencia
-		private (bool, int) IsSequence<T>(T objectt)
+		(bool, int) IsSequence<T>(T objectt)
 		{
 			if (objectt is PointSequence) return (true, 1);
 			if (objectt is LineSequence) return (true, 2);
@@ -1292,7 +1328,7 @@ namespace INTERPRETE_C__to_HULK
 		}
 
 		//metodo que evalua la secuencia en el if y determina si representa true o false en el llamado
-		private object Evaluate_Sequence_As_Boolean(int a, object sequence, Node node)
+		object Evaluate_Sequence_As_Boolean(int a, object sequence, Node node)
 		{
 			switch (a)
 			{
@@ -1335,17 +1371,9 @@ namespace INTERPRETE_C__to_HULK
 			}
 		}
 
-		/*private void Evaluate_Sequences_Inside_A_Sequence<T>(ISequence<T> sequence, List<ISequence<T>> list)
+		void Draw_Sequence<T>(ISequence<T> s)
 		{
-			foreach(var x in list)
-			{
-				sequence = sequence.Concat(x);
-			}
-		}*/
-
-		private void Draw_Sequence<T>(ISequence<T> s)
-		{
-			//no admite secuecnias i fiitas o indefinidas
+			//no admite secuencias infinitas o indefinidas
 			if (s.is_infinite || s.is_undefined) Input_Error("Infinie or undefined sequences can't be drawed");
 
 			else
@@ -1362,10 +1390,8 @@ namespace INTERPRETE_C__to_HULK
 			}
 		}
 
-		/// <summary>
-		/// Metodo para almacenar y asignar las variables que se declaran en el LET
-		/// </summary>
-		private void Save_Var(Node Children_assigment_list)
+		// Metodo para almacenar y asignar las variables que se declaran en el LET
+		void Save_Var(Node Children_assigment_list)
 		{
 			// Crea un nuevo diccionario para almacenar las variables del bloque Let
 			Dictionary<string, dynamic> Var_let_in = new Dictionary<string, dynamic>();
@@ -1374,9 +1400,20 @@ namespace INTERPRETE_C__to_HULK
 			{
 				Var_let_in.Add(key, Scopes[Scopes.Count - 1][key]);
 			}
+
+			// Añade el nuevo diccionario de variables al ámbito actual
+			Scopes.Add(Var_let_in);
+
 			// Para cada asignación en la lista de asignaciones, evalúa el valor y añade la variable al nuevo diccionario
 			foreach (Node Child in Children_assigment_list.Children)
 			{
+				if (Child.Type == "sequence_asigment")
+				{
+					Evaluate(Child);
+
+					continue;
+				}
+
 				string? name = Child.Children[0].Value.ToString();
 				dynamic? value = Evaluate(Child.Children[1]);
 
@@ -1387,24 +1424,20 @@ namespace INTERPRETE_C__to_HULK
 				}
 
 				// Si la variable ya existe en el diccionario, actualiza su valor
-				if (Var_let_in.ContainsKey(name))
+				if (Scopes[Scopes.Count - 1].ContainsKey(name))
 				{
-					Var_let_in[name] = value;
+					Scopes[Scopes.Count - 1][name] = value;
 				}
 
 				else
 				{
-					Var_let_in.Add(name, value);
+					Scopes[Scopes.Count - 1].Add(name, value);
 				}
 			}
-			// Añade el nuevo diccionario de variables al ámbito actual
-			Scopes.Add(Var_let_in);
 		}
 
-		/// <summary>
-		/// Metodo que llama a una funcion ya declarada
-		/// </summary>
-		private int Call_Function(List<Function_B> f, string name, Node param)
+		// Metodo que llama a una funcion ya declarada
+		int Call_Function(List<Function_B> f, string name, Node param)
 		{
 			bool is_found = false;
 			// Recorre la lista de funciones declaradas
@@ -1459,11 +1492,8 @@ namespace INTERPRETE_C__to_HULK
 			return -1;
 		}
 
-
-		/// <summary>
-		/// Metodo que verifica si la funcion existe declarada
-		/// </summary>
-		private bool Function_Exist(string? name)
+		// Metodo que verifica si la funcion existe declarada
+		bool Function_Exist(string? name)
 		{
 			// Recorre la lista de funciones declaradas
 			foreach (Function_B b in functions_declared)
@@ -1478,18 +1508,14 @@ namespace INTERPRETE_C__to_HULK
 			return false;
 		}
 
-		/// <summary>
-		/// Método que lanza una excepción con un mensaje de error semantico
-		/// </summary>
-		private void Input_Error(string error)
+		// Método que lanza una excepción con un mensaje de error semantico
+		void Input_Error(string error)
 		{
 			throw new Exception("SEMANTIC ERROR: " + error);
 		}
 
-		/// <summary>
-		/// Metodo que verifica si dos valores son del mismo tipo (del tipo desperado)
-		/// </summary>
-		private void Type_Expected(object value1, object value2, string type, string op)
+		// Metodo que verifica si dos valores son del mismo tipo (del tipo desperado)
+		void Type_Expected(object value1, object value2, string type, string op)
 		{
 			// Si los valores son del tipo esperado, no hace nada
 			if (value1 is double && value2 is double && type == "number")
@@ -1511,10 +1537,8 @@ namespace INTERPRETE_C__to_HULK
 			}
 		}
 
-		/// <summary>
-		/// Metodo que dependiendo del tipo esperado, verifica si el valor es de ese tipo
-		/// </summary>
-		private void Expected(object value1, string type, string express)
+		// Metodo que dependiendo del tipo esperado, verifica si el valor es de ese tipo
+		void Expected(object value1, string type, string express)
 		{
 			string v1_type = Identify(value1);
 
@@ -1544,14 +1568,14 @@ namespace INTERPRETE_C__to_HULK
 
 		}
 
-		private string Identify(object value)
+
+		string Identify(object value)
 		{
 			if (value is string) return "string";
 			if (value is double) return "number";
 			if (value is bool) return "bool";
 			return "Unknown";
 		}
-
 	}
 	#endregion
 }

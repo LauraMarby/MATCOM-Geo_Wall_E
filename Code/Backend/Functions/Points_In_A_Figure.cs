@@ -18,20 +18,15 @@ namespace G_Wall_E
         public static PointSequence Points(Line p, string color)
         {
             PointSequence ret = new PointSequence(new List<Point>() { });
-
             var random = new Random();
-
             List<Point> list = new List<Point>();
-
             for (int i = 0; i < 5; i++)
             {
                 double x = p.P1.X + random.NextDouble() * (p.P2.X - p.P1.X);
                 double y = (p.P2.Y - p.P1.Y) / (p.P2.X - p.P1.X) * (x - p.P1.X) + p.P1.Y;
                 list.Add(new Point("random", color, x, y));
             }
-
             ret.values.Add(list);
-
             return ret;
         }
 
@@ -39,20 +34,15 @@ namespace G_Wall_E
         public static PointSequence Points(Segment p, string color)
         {
             PointSequence ret = new PointSequence(new List<Point>() { });
-
             var random = new Random();
-
             List<Point> list = new List<Point>();
-
             for (int i = 0; i < 5; i++)
             {
                 double x = p.P1.X + random.NextDouble() * (p.P2.X - p.P1.X);
                 double y = (p.P2.Y - p.P1.Y) / (p.P2.X - p.P1.X) * (x - p.P1.X) + p.P1.Y;
                 list.Add(new Point("random", color, x, y));
             }
-
             ret.values.Add(list);
-
             return ret;
         }
 

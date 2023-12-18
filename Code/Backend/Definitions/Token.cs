@@ -55,14 +55,14 @@ namespace INTERPRETE_C__to_HULK
         
         //funciones que devuelve una secuencia G#
         SEQUENCE, //en codigo: point sequence etc 
-        INTERSECT, //implementar!
-        POINTS, //IMPLEMENTAR!
-        SAMPLES, //IMPLEMENTAR!
-        RANDOMS, //IMPLEMENTAR!
+        INTERSECT,
+        POINTS,
+        SAMPLES,
+        RANDOMS,
 
         //variables y operadores G#
-        UNDERSCORE, //_ IMPLEMENTAR!
-        UNDEFINED, //IMPLEMENTAR!
+        UNDERSCORE,
+        UNDEFINED,
         INFINITE, //token que se usa en declaracion de secuencias infinitas como {a...} o {a...b} 
         //REVISAR EL OPERADOR + YA QUE EN G# SE USA PARA CONCATENAR SECUENCIAS Y PROBABLEMENTE STRINGS Y OTROS
         COLOR_RANGE, //colores blue red etc 
@@ -81,10 +81,6 @@ namespace INTERPRETE_C__to_HULK
             Type = type;
             Value = value;
         }
-
-        //public override string ToString() {
-        //    return $"Token({Type}, {Value})";
-        //}
     }
 
 }

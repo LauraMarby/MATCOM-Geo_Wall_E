@@ -67,7 +67,6 @@ namespace G_Wall_E
         {
             //hallando el radio de la circunferencia
             var radius = a.Distance.Execute();
-
             //hallar la acotacion del arco en x
             var x_min = Math.Min(a.P3.X, a.P2.X);
             var x_max = Math.Max(a.P3.X, a.P2.X);
@@ -99,10 +98,10 @@ namespace G_Wall_E
         public static PointSequence Intersect(Line l1, Line l2, string color)
         {
             //hallando ecuación de la recta
-            var l1_m = ((l1.P2.Y - l1.P1.Y) / (l1.P2.X - l1.P1.X));
-            var l1_n = (l1.P1.Y - l1_m * l1.P1.X);
-            var l2_m = ((l2.P2.Y - l2.P1.Y) / (l2.P2.X - l2.P1.X));
-            var l2_n = (l2.P1.Y - l2_m * l2.P1.X); ;
+            var l1_m = (l1.P2.Y - l1.P1.Y) / (l1.P2.X - l1.P1.X);
+            var l1_n = l1.P1.Y - l1_m * l1.P1.X;
+            var l2_m = (l2.P2.Y - l2.P1.Y) / (l2.P2.X - l2.P1.X);
+            var l2_n = l2.P1.Y - l2_m * l2.P1.X; ;
 
             //si tienen la misma pendiente son paralelas
             if (l1_m == l2_m)
@@ -125,10 +124,10 @@ namespace G_Wall_E
         public static PointSequence Intersect(Line l, Segment s, string color)
         {
             //hallando la ecuacion de la recta
-            var l_m = ((l.P2.Y - l.P1.Y) / (l.P2.X - l.P1.X));
-            var l_n = (l.P1.Y - l_m * l.P1.X);
-            var s_m = ((s.P2.Y - s.P1.Y) / (s.P2.X - s.P1.X));
-            var s_n = (s.P1.Y - s_m * s.P1.X);
+            var l_m = (l.P2.Y - l.P1.Y) / (l.P2.X - l.P1.X);
+            var l_n = l.P1.Y - l_m * l.P1.X;
+            var s_m = (s.P2.Y - s.P1.Y) / (s.P2.X - s.P1.X);
+            var s_n = s.P1.Y - s_m * s.P1.X;
 
             //hallar la acotacion del segmento en x
             var x_min = Math.Min(s.P1.X, s.P2.X);
@@ -165,10 +164,10 @@ namespace G_Wall_E
         public static PointSequence Intersect(Line l, Ray r, string color)
         {
             //hallando ecuacion de la recta
-            var l_m = ((l.P2.Y - l.P1.Y) / (l.P2.X - l.P1.X));
-            var l_n = (l.P1.Y - l_m * l.P1.X);
-            var r_m = ((r.P2.Y - r.P1.Y) / (r.P2.X - r.P1.X));
-            var r_n = (r.P1.Y - r_m * r.P1.X);
+            var l_m = (l.P2.Y - l.P1.Y) / (l.P2.X - l.P1.X);
+            var l_n = l.P1.Y - l_m * l.P1.X;
+            var r_m = (r.P2.Y - r.P1.Y) / (r.P2.X - r.P1.X);
+            var r_n = r.P1.Y - r_m * r.P1.X;
 
             //son paralelas
             if (l_m == r_m)
@@ -328,10 +327,10 @@ namespace G_Wall_E
         public static PointSequence Intersect(Segment s1, Segment s2 , string color)
         {
             //hallando la ecuacion de la recta
-            var s1_m = ((s1.P2.Y - s1.P1.Y) / (s1.P2.X - s1.P1.X));
-            var s1_n = (s1.P1.Y - s1_m * s1.P1.X);
-            var s2_m = ((s2.P2.Y - s2.P1.Y) / (s2.P2.X - s2.P1.X));
-            var s2_n = (s2.P1.Y - s2_m * s2.P1.X);
+            var s1_m = (s1.P2.Y - s1.P1.Y) / (s1.P2.X - s1.P1.X);
+            var s1_n = s1.P1.Y - s1_m * s1.P1.X;
+            var s2_m = (s2.P2.Y - s2.P1.Y) / (s2.P2.X - s2.P1.X);
+            var s2_n = s2.P1.Y - s2_m * s2.P1.X;
 
             //hallar la acotacion del segmento1 en x
             var x_min_1 = Math.Min(s1.P1.X, s1.P2.X);
@@ -375,10 +374,10 @@ namespace G_Wall_E
         public static PointSequence Intersect(Segment s, Ray r , string color)
         {
             //hallando la ecuacion de la recta
-            var l_m = ((s.P2.Y - s.P1.Y) / (s.P2.X - s.P1.X));
-            var l_n = (s.P1.Y - l_m * s.P1.X);
-            var r_m = ((r.P2.Y - r.P1.Y) / (r.P2.X - r.P1.X));
-            var r_n = (r.P1.Y - r_m * r.P1.X);
+            var l_m = (s.P2.Y - s.P1.Y) / (s.P2.X - s.P1.X);
+            var l_n = s.P1.Y - l_m * s.P1.X;
+            var r_m = (r.P2.Y - r.P1.Y) / (r.P2.X - r.P1.X);
+            var r_n = r.P1.Y - r_m * r.P1.X;
 
             //hallar la acotacion del segmento en x
             var x_min = Math.Min(s.P1.X, s.P2.X);
@@ -572,10 +571,10 @@ namespace G_Wall_E
         public static PointSequence Intersect(Ray r1, Ray r2 , string color)
         {
             //hallando la ecuacion de la recta
-            var l_m = ((r1.P2.Y - r1.P1.Y) / (r1.P2.X - r1.P1.X));
-            var l_n = (r1.P1.Y - l_m * r1.P1.X);
-            var r_m = ((r2.P2.Y - r2.P1.Y) / (r2.P2.X - r2.P1.X));
-            var r_n = (r2.P1.Y - r_m * r2.P1.X);
+            var l_m = (r1.P2.Y - r1.P1.Y) / (r1.P2.X - r1.P1.X);
+            var l_n = r1.P1.Y - l_m * r1.P1.X;
+            var r_m = (r2.P2.Y - r2.P1.Y) / (r2.P2.X - r2.P1.X);
+            var r_n = r2.P1.Y - r_m * r2.P1.X;
 
             //son paralelas
             if (l_m == r_m)
@@ -953,33 +952,31 @@ namespace G_Wall_E
 
 
         //métodos auxiliares
-        public static bool Point_Line(Point p, Point P1, Point P2) //
+        public static bool Point_Line(Point p, Point P1, Point P2) 
         {
             //hallando ecuación de la recta
             var m = (P2.Y - P1.Y) / (P2.X - P1.X);
-            var n = (P1.Y - m * P1.X);
+            var n = P1.Y - m * P1.X;
 
             //si la igualdad coincide, devuelve p, sino retorna vacío
             if (p.Y == m * p.X + n) return true;
             return false;
         }
-        public static bool Point_Circle(Point p, Point P1, double Radius)//
+        public static bool Point_Circle(Point p, Point P1, double Radius)
         {
             //sustituyendo el punto en la ecuacion de la circunferencia
             if (Math.Pow(p.X - P1.X, 2) + Math.Pow(p.Y - P1.Y, 2) == Math.Pow(Radius, 2)) return true;
             //no es intercepto
             else return false;
         }
-
-        public static bool Is_Acot(double a, double min, double max)//
+        public static bool Is_Acot(double a, double min, double max)
         {
             return a >= min && a <= max;
         }
-
         public static bool Ray_Acot(Ray r, double x, double y)
         {
-            bool acot_x = false; //si esta en le rango de las x
-            bool acot_y = false; //si esta en le rango de las y
+            bool acot_x = false; //si esta en el rango de las x
+            bool acot_y = false; //si esta en el rango de las y
 
             //si el rayo se desplaza hacia la izquierda 
             if (r.P1.X > r.P2.X && x <= r.P1.X) acot_x = true;
@@ -1020,5 +1017,4 @@ namespace G_Wall_E
             return distance;
         }
     }
-
 }

@@ -12,7 +12,6 @@ namespace INTERPRETE_C__to_HULK
         int position; // Posición actual en el texto de entrada
         char currentChar; // Carácter actual en el texto de entrada
         public List<Token> Tokens_sequency { get; } // Secuencia de tokens generada por el lexer
-
         public Lexer(string text)
         {
             Text = text; // Inicializa el texto de entrada
@@ -23,11 +22,7 @@ namespace INTERPRETE_C__to_HULK
 
         #region  TOKENS
 
-
-
-        /// <summary>
-        /// Metodo que clasifica los elementos de la entrada en su token correspondiente
-        /// </summary>
+        // Metodo que clasifica los elementos de la entrada en su token correspondiente
         public Token Get_token()
         {
             // Mientras no se llegue al final del texto de entrada
@@ -249,9 +244,7 @@ namespace INTERPRETE_C__to_HULK
         }
         #endregion
 
-        /// <summary>
-        /// Metodo que dependiendo de la palabra, retorna un token con el tipo y valor correspondiente
-        /// </summary>
+        // Metodo que dependiendo de la palabra, retorna un token con el tipo y valor correspondiente
         public Token Own_Words(string word)
         {
 
@@ -327,10 +320,7 @@ namespace INTERPRETE_C__to_HULK
                 case "randoms":
                     return new Token(TokenType.RANDOMS, word);
                 case "sequence":
-                    return new Token(TokenType.SEQUENCE, word); //revisar este caso, ya que en codigo sería de la forma: point sequence ps;
-                                                                //por tanto, se estaria hablando de un tipo de token secuencia, donde los 
-                                                                //elementos de la sequencia son tipo de token point(esto supongo que seria en 
-                                                                //el sintactico y semantico)
+                    return new Token(TokenType.SEQUENCE, word); 
 
                 //parametros
                 case "_":
@@ -351,7 +341,6 @@ namespace INTERPRETE_C__to_HULK
                 case "gray":
                 case "black":
                     return new Token(TokenType.COLOR_RANGE, word);
-                //*
 
                 // Si la palabra no es ninguna de las anteriores, retorna un token de tipo VARIABLE con el valor de la palabra
                 default:
@@ -361,17 +350,13 @@ namespace INTERPRETE_C__to_HULK
 
         #region Auxiliares
 
-        /// <summary>
-        /// Método que lanza una excepción con un mensaje de error lexico
-        /// </summary>
+        // Método que lanza una excepción con un mensaje de error lexico
         private void Input_Error(string error)
         {
             throw new Exception("LEXICAL ERROR: " + error);
         }
 
-        /// <summary>
-        /// Metodo que avanza a la siguiente posición en el texto de entrada
-        /// </summary>
+        // Metodo que avanza a la siguiente posición en el texto de entrada
         public void Move_on()
         {
             position++;
@@ -385,9 +370,7 @@ namespace INTERPRETE_C__to_HULK
             }
         }
 
-        /// <summary>
-        /// Metodo que salta espacios en blanco
-        /// </summary>
+        // Metodo que salta espacios en blanco
         public void Skip_Space()
         {
             // Mientras no se llegue al final del texto de entrada y el carácter actual 
@@ -398,9 +381,7 @@ namespace INTERPRETE_C__to_HULK
             }
         }
 
-        /// <summary>
-        /// Metodo que capta el numero entero
-        /// </summary>
+        // Metodo que capta el numero entero
         public double Int_Analyzer()
         {
             string number = "";
@@ -421,10 +402,7 @@ namespace INTERPRETE_C__to_HULK
             return Convert.ToDouble(number);
         }
 
-        /// <summary>
-        /// Metodo que capta la palabra completa
-        /// </summary>
-        /// 
+        // Metodo que capta la palabra completa
         public string String_Analyzer()
         {
             string value = "";
@@ -436,7 +414,7 @@ namespace INTERPRETE_C__to_HULK
             return value;
         }
 
-        //metodo que rectifica que el token es tipo "..."
+        // Método que rectifica que el token es tipo "..."
         public string Infinite_Analyzer()
         {
             string value = "";
@@ -448,12 +426,8 @@ namespace INTERPRETE_C__to_HULK
             return value;
         }
 
-        /// <summary>
-        /// Metodo que capta el string entre comillas
-        /// </summary>
-        /// <returns>
-        /// La cadena y si no se cierran las comillas retorna false
-        /// </returns>
+        // Metodo que capta el string entre comillas, retorna la cadena
+        // Si no se cierran las comillas retorna false
         static (bool, string, int) Read(int position, string text)
         {
             string s = "";
@@ -471,12 +445,7 @@ namespace INTERPRETE_C__to_HULK
             return (false, "", 0);
         }
 
-        /// <summary>
-        /// Metodo que recibe el texto de entrada y la posicion inicial
-        /// </summary>
-        /// <returns>
-        /// Lista de tokens
-        /// </returns>
+        // Metodo que recibe el texto de entrada y la posicion inicial, retorna una lista de tokens
         public List<Token> Get_Sequency(string text, int position)
         {
             List<Token> TS = new List<Token>();
@@ -492,7 +461,5 @@ namespace INTERPRETE_C__to_HULK
             return TS;
         }
         #endregion
-
-
     }
 }
