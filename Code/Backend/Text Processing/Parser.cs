@@ -135,6 +135,14 @@ namespace INTERPRETE_C__to_HULK
 			return null;
 		}
 
+		// public Node LetIn()
+		// {
+		// 	position++;
+
+		// 	//? Procesar cada expresion separada por ";"  
+
+		// }
+
 		// Este método se encarga de procesar las asignaciones de variables del lenguaje (LET-IN)
 		public Node Assigment()
 		{
@@ -144,34 +152,43 @@ namespace INTERPRETE_C__to_HULK
 
 			do
 			{
-				is_let = true;
+				// is_let = true;
 
 				if (TS[position].Type == TokenType.D_COMMA)
 				{
-					position ++;
+					position++;
 				}
 
-				Expect(TokenType.VARIABLE, "nombre_de_variable");
+				// Expect(TokenType.VARIABLE, "nombre_de_variable");
 
-				// Si es una secuencia, o sea, si a continacion de la variable existe una coma
-				// let a, b, c = ...
-				// El factor se encarrga de procesar correctamente la secuencia
-				if (TS[position].Type == TokenType.COMMA)
+				// // Si es una secuencia, o sea, si a continacion de la variable existe una coma
+				// // let a, b, c = ...
+				// // El factor se encarrga de procesar correctamente la secuencia
+				// if (TS[position].Type == TokenType.COMMA)
+				// {
+				// 	position--;
+				// 	assigments.Children.Add(Factor());
+				// 	continue;
+				// }
+				// else
+				// {
+				// 	Node name = new Node { Type = "name", Value = TS[position - 1].Value };
+				// 	Expect(TokenType.EQUAL, "=");
+				// 	Node value = Global_Layer();
+				// 	Exceptions_Missing(value, "let-in");
+
+				// 	Node var = new Node { Type = "assigment", Children = new List<Node> { name, value } };
+				// 	assigments.Children.Add(var);
+				// }
+				
+				if (TS[position].Type == TokenType.IN)
 				{
-					position --;
-					assigments.Children.Add(Factor());
-					continue;
+					break;
 				}
-				else
-				{
-					Node name = new Node { Type = "name", Value = TS[position - 1].Value };
-					Expect(TokenType.EQUAL, "=");
-					Node value = Global_Layer();
-					Exceptions_Missing(value, "let-in");
-					
-					Node var = new Node { Type = "assigment", Children = new List<Node> { name, value } };
-					assigments.Children.Add(var);
-				}
+
+				Node expression = Global_Layer();
+				assigments.Children.Add(expression);
+				
 
 			} while (TS[position].Type == TokenType.D_COMMA);
 			is_let = false;
@@ -190,13 +207,13 @@ namespace INTERPRETE_C__to_HULK
 			position++;
 			Node expression; //nuevo de camila
 			Node str = new Node { Type = "empty" };
-			Node save_variable = new Node { Type = "save"}; //nuevo de camila
+			Node save_variable = new Node { Type = "save" }; //nuevo de camila
 
-			if(IsGeometricToken()) //nuevo de camila
+			if (IsGeometricToken()) //nuevo de camila
 			{
 				NotSaveVariable = true;
-				save_variable = new Node { Type = "not_save"};
-				expression = Layer_0();
+				save_variable = new Node { Type = "not_save" };
+				expression = Global_Layer();
 			}
 			else //nuevo de camila
 			{
@@ -218,9 +235,9 @@ namespace INTERPRETE_C__to_HULK
 
 			Expect(TokenType.L_PHARENTESYS, "(");
 			is_param = true;
-			Node p1 = Factor();
+			Node p1 = Global_Layer();
 			Expect(TokenType.COMMA, ",");
-			Node p2 = Factor();
+			Node p2 = Global_Layer();
 			is_param = false;
 			Expect(TokenType.R_PHARENTESYS, ")");
 
@@ -234,9 +251,9 @@ namespace INTERPRETE_C__to_HULK
 
 			Expect(TokenType.L_PHARENTESYS, "(");
 			is_param = true;
-			Node f1 = Factor();
+			Node f1 = Global_Layer();
 			Expect(TokenType.COMMA, ",");
-			Node f2 = Factor();
+			Node f2 = Global_Layer();
 			is_param = false;
 			Expect(TokenType.R_PHARENTESYS, ")");
 
@@ -428,21 +445,21 @@ namespace INTERPRETE_C__to_HULK
 
 			}
 
-			else if(TS[position].Type == TokenType.POINT)//recibe dos variables
+			else if (TS[position].Type == TokenType.POINT)//recibe dos variables
 			{
 				Node name = new Node { Type = "g_name", Value = TS[position - 2].Value.ToString() };
 				if (NotSaveVariable) //nuevo de camila
 				{
-				name.Value = "_" + name.Value;
-				NotSaveVariable = false;
+					name.Value = "_" + name.Value;
+					NotSaveVariable = false;
 				}
 
 				position++;
 				Expect(TokenType.L_PHARENTESYS, "(");
 				is_param = true;
-				Node var1 = Factor();
+				Node var1 = Global_Layer();
 				Expect(TokenType.COMMA, ",");
-				Node var2 = Factor();
+				Node var2 = Global_Layer();
 				is_param = false;
 				Expect(TokenType.R_PHARENTESYS, ")");
 				return new Node { Type = "point_def", Children = new List<Node> { name, var1, var2 } };
@@ -461,9 +478,9 @@ namespace INTERPRETE_C__to_HULK
 				position++;
 				Expect(TokenType.L_PHARENTESYS, "(");
 				is_param = true;
-				Node var1 = Factor();
+				Node var1 = Global_Layer();
 				Expect(TokenType.COMMA, ",");
-				Node var2 = Factor();
+				Node var2 = Global_Layer();
 				is_param = false;
 				Expect(TokenType.R_PHARENTESYS, ")");
 				return new Node { Type = "segment", Children = new List<Node> { name, var1, var2 } };
@@ -483,9 +500,9 @@ namespace INTERPRETE_C__to_HULK
 				position++;
 				Expect(TokenType.L_PHARENTESYS, "(");
 				is_param = true;
-				Node var1 = Factor();
+				Node var1 = Global_Layer();
 				Expect(TokenType.COMMA, ",");
-				Node var2 = Factor();
+				Node var2 = Global_Layer();
 				is_param = false;
 				Expect(TokenType.R_PHARENTESYS, ")");
 				return new Node { Type = "ray", Children = new List<Node> { name, var1, var2 } };
@@ -505,9 +522,9 @@ namespace INTERPRETE_C__to_HULK
 				position++;
 				Expect(TokenType.L_PHARENTESYS, "(");
 				is_param = true;
-				Node point = Factor();
+				Node point = Global_Layer();
 				Expect(TokenType.COMMA, ",");
-				Node measure = Factor();
+				Node measure = Global_Layer();
 				is_param = false;
 				Expect(TokenType.R_PHARENTESYS, ")");
 				return new Node { Type = "circle", Children = new List<Node> { name, point, measure } };
@@ -527,13 +544,13 @@ namespace INTERPRETE_C__to_HULK
 				position++;
 				Expect(TokenType.L_PHARENTESYS, "(");
 				is_param = true;
-				Node var1 = Factor();
+				Node var1 = Global_Layer();
 				Expect(TokenType.COMMA, ",");
-				Node var2 = Factor();
+				Node var2 = Global_Layer();
 				Expect(TokenType.COMMA, ",");
-				Node var3 = Factor();
+				Node var3 = Global_Layer();
 				Expect(TokenType.COMMA, ",");
-				Node var4 = Factor();
+				Node var4 = Global_Layer();
 				is_param = false;
 				Expect(TokenType.R_PHARENTESYS, ")");
 				return new Node { Type = "arc", Children = new List<Node> { name, var1, var2, var3, var4 } };
@@ -545,9 +562,9 @@ namespace INTERPRETE_C__to_HULK
 				position++;
 				Expect(TokenType.L_PHARENTESYS, "(");
 				is_param = true;
-				Node point_1 = Factor();
+				Node point_1 = Global_Layer();
 				Expect(TokenType.COMMA, ",");
-				Node point_2 = Factor();
+				Node point_2 = Global_Layer();
 				is_param = false;
 				Expect(TokenType.R_PHARENTESYS, ")");
 
@@ -632,6 +649,14 @@ namespace INTERPRETE_C__to_HULK
 			}
 
 			//Si el token actual es un número, retorna un nodo de tipo "number" con el valor del número
+			else if (TS[position].Type == TokenType.OPERATOR && (char)TS[position].Value == '-')
+			{
+				position++;
+				dynamic value = Convert.ToDouble(TS[position++].Value);
+				return new Node { Type = "number", Value = -value };
+			}
+
+			//Si el token actual es un número, retorna un nodo de tipo "number" con el valor del número
 			else if (TS[position].Type == TokenType.NUMBER)
 			{
 				dynamic value = Convert.ToDouble(TS[position++].Value);
@@ -681,6 +706,9 @@ namespace INTERPRETE_C__to_HULK
 						if (TS[position].Type == TokenType.UNDERSCORE)
 						{
 							position++;
+							Node var = new Node { Type = "variable", Value = "underscore" };
+							vars.Children.Add(var);
+							comma = false;
 							continue;
 						}
 						//si encuentro una variable, anadir
@@ -829,6 +857,8 @@ namespace INTERPRETE_C__to_HULK
 
 			else if (TS[position].Type == TokenType.POINT) //caso: point p; ó point sequence ps;
 			{
+				if (is_let) return Layer_0();
+
 				position++;
 				Node name;
 				int safe1; //anadido por incongruhencia con position++
@@ -839,10 +869,10 @@ namespace INTERPRETE_C__to_HULK
 					safe1 = position;
 					name = Factor();
 					Exceptions_Missing(name, "");
-					safe2 = position;
-					position = safe1;
-					Expect(TokenType.VARIABLE, "reference");
-					position = safe2;
+					// safe2 = position;
+					// position = safe1;
+					// Expect(TokenType.VARIABLE, "reference");
+					// position = safe2;
 
 					return new Node { Type = "point_sequence", Children = new List<Node> { name } };
 				}
@@ -850,15 +880,22 @@ namespace INTERPRETE_C__to_HULK
 				else //punto aleatorio
 				{
 					safe1 = position;
+
+					if (TS[position].Type == TokenType.L_PHARENTESYS)
+					{
+						position--;
+						return Layer_0();
+					}
+
 					name = Factor();
 					Node x = null;
 					Node y = null;
 					Exceptions_Missing(name, "");
 
-					safe2 = position;
-					position = safe1;
-					Expect(TokenType.VARIABLE, "reference");
-					position = safe2;
+					// safe2 = position;
+					// position = safe1;
+					// Expect(TokenType.VARIABLE, "reference");
+					// position = safe2;
 
 					return new Node { Type = "point", Children = new List<Node> { name, x, y } };
 				}
@@ -867,7 +904,7 @@ namespace INTERPRETE_C__to_HULK
 			else if (TS[position].Type == TokenType.LINE)
 			{
 				NotSaveVariable = true;
-				if(is_let) return Layer_0();
+				if (is_let) return Layer_0();
 
 				position++;
 				Node name;
@@ -880,16 +917,22 @@ namespace INTERPRETE_C__to_HULK
 					safe1 = position;
 					name = Factor();
 					Exceptions_Missing(name, "");
-					safe2 = position;
-					position = safe1;
-					Expect(TokenType.VARIABLE, "reference");
-					position = safe2;
+					// safe2 = position;
+					// position = safe1;
+					// Expect(TokenType.VARIABLE, "reference");
+					// position = safe2;
 
 					return new Node { Type = "line_sequence", Children = new List<Node> { name } };
 				}
 
 				else //linea aleatoria
 				{
+					if (TS[position].Type == TokenType.L_PHARENTESYS)
+					{
+						position--;
+						return Layer_0();
+					}
+
 					safe1 = position;
 					name = Factor();
 					Exceptions_Missing(name, "");
@@ -900,10 +943,10 @@ namespace INTERPRETE_C__to_HULK
 						NotSaveVariable = false;
 					}*/
 
-					safe2 = position;
-					position = safe1;
-					Expect(TokenType.VARIABLE, "reference");
-					position = safe2;
+					// safe2 = position;
+					// position = safe1;
+					// Expect(TokenType.VARIABLE, "reference");
+					// position = safe2;
 
 					return new Node { Type = "line_d", Children = new List<Node> { name } };
 				}
@@ -912,7 +955,7 @@ namespace INTERPRETE_C__to_HULK
 			else if (TS[position].Type == TokenType.SEGMENT)
 			{
 				NotSaveVariable = true;
-				if(is_let) return Layer_0();
+				if (is_let) return Layer_0();
 
 				position++;
 				Node name;
@@ -925,16 +968,22 @@ namespace INTERPRETE_C__to_HULK
 					safe1 = position;
 					name = Factor();
 					Exceptions_Missing(name, "");
-					safe2 = position;
-					position = safe1;
-					Expect(TokenType.VARIABLE, "reference");
-					position = safe2;
+					// safe2 = position;
+					// position = safe1;
+					// Expect(TokenType.VARIABLE, "reference");
+					// position = safe2;
 
 					return new Node { Type = "segment_sequence", Children = new List<Node> { name } };
 				}
 
 				else //segmento aleatorio
 				{
+					if (TS[position].Type == TokenType.L_PHARENTESYS)
+					{
+						position--;
+						return Layer_0();
+					}
+
 					safe1 = position;
 					name = Factor();
 					Exceptions_Missing(name, "");
@@ -945,10 +994,10 @@ namespace INTERPRETE_C__to_HULK
 						NotSaveVariable = false;
 					}*/
 
-					safe2 = position;
-					position = safe1;
-					Expect(TokenType.VARIABLE, "reference");
-					position = safe2;
+					// safe2 = position;
+					// position = safe1;
+					// Expect(TokenType.VARIABLE, "reference");
+					// position = safe2;
 
 					return new Node { Type = "segment_d", Children = new List<Node> { name } };
 				}
@@ -957,7 +1006,7 @@ namespace INTERPRETE_C__to_HULK
 			else if (TS[position].Type == TokenType.RAY)
 			{
 				NotSaveVariable = true;
-				if(is_let) return Layer_0();
+				if (is_let) return Layer_0();
 
 				position++;
 				Node name;
@@ -970,16 +1019,22 @@ namespace INTERPRETE_C__to_HULK
 					safe1 = position;
 					name = Factor();
 					Exceptions_Missing(name, "");
-					safe2 = position;
-					position = safe1;
-					Expect(TokenType.VARIABLE, "reference");
-					position = safe2;
+					// safe2 = position;
+					// position = safe1;
+					// Expect(TokenType.VARIABLE, "reference");
+					// position = safe2;
 
 					return new Node { Type = "ray_sequence", Children = new List<Node> { name } };
 				}
 
 				else //rayo aleatorio
 				{
+					if (TS[position].Type == TokenType.L_PHARENTESYS)
+					{
+						position--;
+						return Layer_0();
+					}
+
 					safe1 = position;
 					name = Factor();
 					Exceptions_Missing(name, "");
@@ -990,10 +1045,10 @@ namespace INTERPRETE_C__to_HULK
 						NotSaveVariable = false;
 					}*/
 
-					safe2 = position;
-					position = safe1;
-					Expect(TokenType.VARIABLE, "reference");
-					position = safe2;
+					// safe2 = position;
+					// position = safe1;
+					// Expect(TokenType.VARIABLE, "reference");
+					// position = safe2;
 
 					return new Node { Type = "ray_d", Children = new List<Node> { name } };
 				}
@@ -1002,7 +1057,7 @@ namespace INTERPRETE_C__to_HULK
 			else if (TS[position].Type == TokenType.ARC)
 			{
 				NotSaveVariable = true;
-				if(is_let) return Layer_0();
+				if (is_let) return Layer_0();
 
 				position++;
 				Node name;
@@ -1015,16 +1070,22 @@ namespace INTERPRETE_C__to_HULK
 					safe1 = position;
 					name = Factor();
 					Exceptions_Missing(name, "");
-					safe2 = position;
-					position = safe1;
-					Expect(TokenType.VARIABLE, "reference");
-					position = safe2;
+					// safe2 = position;
+					// position = safe1;
+					// Expect(TokenType.VARIABLE, "reference");
+					// position = safe2;
 
 					return new Node { Type = "arc_sequence", Children = new List<Node> { name } };
 				}
 
 				else //arco aleatorio
 				{
+					if (TS[position].Type == TokenType.L_PHARENTESYS)
+					{
+						position--;
+						return Layer_0();
+					}
+
 					safe1 = position;
 					name = Factor();
 					Exceptions_Missing(name, "");
@@ -1035,10 +1096,10 @@ namespace INTERPRETE_C__to_HULK
 						NotSaveVariable = false;
 					}*/
 
-					safe2 = position;
-					position = safe1;
-					Expect(TokenType.VARIABLE, "reference");
-					position = safe2;
+					// safe2 = position;
+					// position = safe1;
+					// Expect(TokenType.VARIABLE, "reference");
+					// position = safe2;
 
 					return new Node { Type = "arc_d", Children = new List<Node> { name } };
 				}
@@ -1047,7 +1108,7 @@ namespace INTERPRETE_C__to_HULK
 			else if (TS[position].Type == TokenType.CIRCLE)
 			{
 				NotSaveVariable = true;
-				if(is_let) return Layer_0();
+				if (is_let) return Layer_0();
 
 				position++;
 				Node name;
@@ -1060,16 +1121,22 @@ namespace INTERPRETE_C__to_HULK
 					safe1 = position;
 					name = Factor();
 					Exceptions_Missing(name, "");
-					safe2 = position;
-					position = safe1;
-					Expect(TokenType.VARIABLE, "reference");
-					position = safe2;
+					// safe2 = position;
+					// position = safe1;
+					// Expect(TokenType.VARIABLE, "reference");
+					// position = safe2;
 
 					return new Node { Type = "circle_sequence", Children = new List<Node> { name } };
 				}
 
 				else //circunferencia aleatoria
 				{
+					if (TS[position].Type == TokenType.L_PHARENTESYS)
+					{
+						position--;
+						return Layer_0();
+					}
+
 					safe1 = position;
 					name = Factor();
 					Exceptions_Missing(name, "");
@@ -1080,10 +1147,10 @@ namespace INTERPRETE_C__to_HULK
 						NotSaveVariable = false;
 					}*/
 
-					safe2 = position;
-					position = safe1;
-					Expect(TokenType.VARIABLE, "reference");
-					position = safe2;
+					// safe2 = position;
+					// position = safe1;
+					// Expect(TokenType.VARIABLE, "reference");
+					// position = safe2;
 
 					return new Node { Type = "circle_d", Children = new List<Node> { name } };
 				}
@@ -1176,20 +1243,20 @@ namespace INTERPRETE_C__to_HULK
 		//nuevo de camila
 		public bool IsGeometricToken()
 		{
-			switch(TS[position].Type)
+			switch (TS[position].Type)
 			{
 				case TokenType.LINE:
 				case TokenType.SEGMENT:
 				case TokenType.RAY:
-				case TokenType.CIRCLE: 
+				case TokenType.CIRCLE:
 				case TokenType.ARC:
 					return true;
 
-				default: 
+				default:
 					return false;
 			}
 		}
-		
+
 		#endregion
 	}
 }

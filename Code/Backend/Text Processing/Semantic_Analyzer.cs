@@ -325,6 +325,10 @@ namespace INTERPRETE_C__to_HULK
 						if(right_unknown is Measure && left_unknown is Measure) return (Measure)left_unknown + (Measure)right_unknown;
 						if(right_unknown is Measure && left_unknown is double) return (double)left_unknown + (Measure)right_unknown;
 						if(right_unknown is double && left_unknown is Measure) return (double)right_unknown + (Measure)left_unknown;
+						if(right_unknown is Point plus_p1 && left_unknown is Point plus_p2) 
+						{
+							return new Point("", FigureColor, plus_p1.X - plus_p2.X, plus_p1.Y - plus_p2.Y);
+						} 
 						Type_Expected(right_unknown, left_unknown, "number", "+");
 						return (double)left_unknown + (double)right_unknown;
 					}
@@ -344,6 +348,10 @@ namespace INTERPRETE_C__to_HULK
 						if(right_a is Measure && left_a is Measure) return (Measure)left_a - (Measure)right_a;
 						if(right_a is Measure && left_a is double) return (double)left_a - (Measure)right_a;
 						if(right_a is double && left_a is Measure) return (double)right_a - (Measure)left_a;
+						if(right_a is Point _p1 && left_a is Point _p2) 
+						{
+							return new Point("", FigureColor, _p2.X - _p1.X, _p2.Y - _p1.Y);
+						} 
 						Type_Expected(right_a, left_a, "number", "-");
 						return (double)left_a - (double)right_a;
 
@@ -351,6 +359,14 @@ namespace INTERPRETE_C__to_HULK
 						if(right_a is Measure && left_a is Measure) return (Measure)left_a * (Measure)right_a;
 						if(right_a is Measure && left_a is double) return (double)left_a * (Measure)right_a;
 						if(right_a is double && left_a is Measure) return (double)right_a * (Measure)left_a;
+						if(right_a is double mult_n && left_a is Point mult_p2) 
+						{
+							return new Point("", FigureColor, mult_n * mult_p2.X, mult_n * mult_p2.Y);
+						}
+						if(right_a is Point mult_p1 && left_a is double mult_n2) 
+						{
+							return new Point("", FigureColor, mult_n2 * mult_p1.X, mult_n2 * mult_p1.Y);
+						}
 						Type_Expected(right_a, left_a, "number", "*");
 						return (double)left_a * (double)right_a;
 
@@ -358,6 +374,14 @@ namespace INTERPRETE_C__to_HULK
 						if(right_a is Measure && left_a is Measure) return (Measure)left_a / (Measure)right_a;
 						if(right_a is Measure && left_a is double) return (double)left_a / (Measure)right_a;
 						if(right_a is double && left_a is Measure) return (double)right_a / (Measure)left_a;
+						if(left_a is Point divm_p1 && right_a is Measure divm_n2) 
+						{
+							return new Point("", FigureColor, divm_p1.X / divm_n2.Execute(), divm_p1.Y / divm_n2.Execute());
+						}
+						if(left_a is Point div_p1 && right_a is double div_n2) 
+						{
+							return new Point("", FigureColor, div_p1.X / div_n2, div_p1.Y / div_n2);
+						}
 						Type_Expected(right_a, left_a, "number", "/");
 						return (double)left_a / (double)right_a;
 
@@ -386,6 +410,17 @@ namespace INTERPRETE_C__to_HULK
 				case "!=":
 					object? left_b = Evaluate(node.Children[0]);
 					object? right_b = Evaluate(node.Children[1]);
+
+					if (left_b is Measure left_bm)
+					{
+						left_b = left_bm.Execute();
+					}
+					
+					if (right_b is Measure right_bm)
+					{
+						right_b = right_bm.Execute();
+					}
+
 					switch (node.Type)
 					{
 						case ">": return (double)left_b > (double)right_b;
@@ -511,9 +546,16 @@ namespace INTERPRETE_C__to_HULK
 				case "measure":
 					Point p1 = (Point)Evaluate(node.Children[0]);
 					Point p2 = (Point)Evaluate(node.Children[1]);
-					Measure m = new Measure(FigureColor, "measure", p1, p2);
+					dynamic m = new Measure(FigureColor, "measure", p1, p2);
 
-					Scopes[Scopes.Count - 1].Add("measure", m);
+					if (Scopes[Scopes.Count - 1].ContainsKey("measure"))
+					{
+						Scopes[Scopes.Count - 1]["measure"] = m;
+					}
+					else
+					{
+						Scopes[Scopes.Count - 1].Add("measure", m);
+					}
 
 					return m;
 
@@ -521,9 +563,16 @@ namespace INTERPRETE_C__to_HULK
 					string m_name = Evaluate(node.Children[0]).ToString();
 					Point pd1 = (Point)Evaluate(node.Children[1]);
 					Point pd2 = (Point)Evaluate(node.Children[2]);
-					Measure md = new Measure(FigureColor, m_name, pd1, pd2);
+					dynamic md = new Measure(FigureColor, m_name, pd1, pd2);
 
-					Scopes[Scopes.Count - 1].Add(m_name, md);
+					if (Scopes[Scopes.Count - 1].ContainsKey(m_name))
+					{
+						Scopes[Scopes.Count - 1][m_name] = md;
+					}
+					else
+					{
+						Scopes[Scopes.Count - 1].Add(m_name, md);
+					}
 
 					return md;
 
@@ -638,8 +687,16 @@ namespace INTERPRETE_C__to_HULK
 					if (Scopes[Scopes.Count - 1].ContainsKey("randoms")) return Scopes[Scopes.Count - 1]["randoms"];
 					else
 					{
-						FloatSequence randoms = new FloatSequence();
-						Scopes[Scopes.Count - 1].Add("randoms", randoms);
+						dynamic randoms = new FloatSequence();
+
+						if (Scopes[Scopes.Count - 1].ContainsKey("randoms"))
+						{
+							Scopes[Scopes.Count - 1]["randoms"] = randoms;
+						}
+						else
+						{
+							Scopes[Scopes.Count - 1].Add("randoms", randoms);
+						}
 						return randoms;
 					}
 				//si el nodo es samples, devuelve una secuencia de puntos finita
@@ -647,8 +704,16 @@ namespace INTERPRETE_C__to_HULK
 					if (Scopes[Scopes.Count - 1].ContainsKey("samples")) return Scopes[Scopes.Count - 1]["samples"];
 					else
 					{
-						PointSequence samples = new PointSequence("samples", FigureColor, true);
-						Scopes[Scopes.Count - 1].Add("samples", samples);
+						dynamic samples = new PointSequence("samples", FigureColor, true);
+
+						if (Scopes[Scopes.Count - 1].ContainsKey("samples"))
+						{
+							Scopes[Scopes.Count - 1]["samples"] = samples;
+						}
+						else
+						{
+							Scopes[Scopes.Count - 1].Add("samples", samples);
+						}
 						return samples;
 					}
 
@@ -762,7 +827,8 @@ namespace INTERPRETE_C__to_HULK
 					Function_B function = new Function_B(node.Children[0].Value.ToString(), node.Children[2], Var);
 					if (Function_Exist(node.Children[0].Value.ToString()))
 					{
-						throw new Exception("The function " + "\' " + node.Children[0].Value + " \'" + "already exist in the current context");
+						return functions_declared;
+						// throw new Exception("The function " + "\' " + node.Children[0].Value + " \'" + "already exist in the current context");
 					}
 					functions_declared.Add(function);
 					return functions_declared;
@@ -808,8 +874,16 @@ namespace INTERPRETE_C__to_HULK
 				// declaracion de punto aleatorio
 				case "point":
 					string name_p = node.Children[0].Value.ToString();
-					Point point = new Point(name_p, FigureColor);
-					Scopes[Scopes.Count - 1].Add(name_p, point);
+					dynamic point = new Point(name_p, FigureColor);
+					
+					if (Scopes[Scopes.Count - 1].ContainsKey(name_p))
+					{
+						Scopes[Scopes.Count - 1][name_p] = point;	
+					}
+					else
+					{
+						Scopes[Scopes.Count - 1].Add(name_p, point);
+					}
 					return point;
 
 				//declaracion de punto definido
@@ -817,43 +891,91 @@ namespace INTERPRETE_C__to_HULK
 					string name_pd = node.Children[0].Value.ToString();
 					object p1_p = Evaluate(node.Children[1]);
 					object p2_p = Evaluate(node.Children[2]);
-					Point point_def = new Point(name_pd, FigureColor, (double)p1_p, (double)p2_p);
-					Scopes[Scopes.Count - 1].Add(name_pd, point_def);
+					dynamic point_def = new Point(name_pd, FigureColor, (double)p1_p, (double)p2_p);
+					
+					if (Scopes[Scopes.Count - 1].ContainsKey(name_pd))
+					{
+						Scopes[Scopes.Count - 1][name_pd] = point_def;	
+					}
+					else
+					{
+						Scopes[Scopes.Count - 1].Add(name_pd, point_def);
+					}
 					return point_def;
 
 				//declaracion de linea aleatoria
 				case "line_d":
 					string name_ld = node.Children[0].Value.ToString();
-					Line line = new Line(name_ld, FigureColor);
-					Scopes[Scopes.Count - 1].Add(name_ld, line);
+					dynamic line = new Line(name_ld, FigureColor);
+
+					if (Scopes[Scopes.Count - 1].ContainsKey(name_ld))
+					{
+						Scopes[Scopes.Count - 1][name_ld] = line;	
+					}
+					else
+					{
+						Scopes[Scopes.Count - 1].Add(name_ld, line);
+					}
 					return line;
 
 				//declaracion de segmento aleatorio
 				case "segment_d":
 					string name_sd = node.Children[0].Value.ToString();
-					Segment segment = new Segment(name_sd, FigureColor);
-					Scopes[Scopes.Count - 1].Add(name_sd, segment);
+					dynamic segment = new Segment(name_sd, FigureColor);
+
+					if (Scopes[Scopes.Count - 1].ContainsKey(name_sd))
+					{
+						Scopes[Scopes.Count - 1][name_sd] = segment;	
+					}
+					else
+					{
+						Scopes[Scopes.Count - 1].Add(name_sd, segment);
+					}
 					return segment;
 
 				//declaracion de rayo aleatorio
 				case "ray_d":
 					string name_rd = node.Children[0].Value.ToString();
-					Ray ray = new Ray(name_rd, FigureColor);
-					Scopes[Scopes.Count - 1].Add(name_rd, ray);
+					dynamic ray = new Ray(name_rd, FigureColor);
+
+					if (Scopes[Scopes.Count - 1].ContainsKey(name_rd))
+					{
+						Scopes[Scopes.Count - 1][name_rd] = ray;	
+					}
+					else
+					{
+						Scopes[Scopes.Count - 1].Add(name_rd, ray);
+					}
 					return ray;
 
 				//declaracion de arco aleatorio
 				case "arc_d":
 					string name_ad = node.Children[0].Value.ToString();
-					Arc arc = new Arc(name_ad, FigureColor);
-					Scopes[Scopes.Count - 1].Add(name_ad, arc);
+					dynamic arc = new Arc(name_ad, FigureColor);
+
+					if (Scopes[Scopes.Count - 1].ContainsKey(name_ad))
+					{
+						Scopes[Scopes.Count - 1][name_ad] = arc;	
+					}
+					else
+					{
+						Scopes[Scopes.Count - 1].Add(name_ad, arc);
+					}
 					return arc;
 
 				//declaracion de circulo aleatorio
 				case "circle_d":
 					string name_cd = node.Children[0].Value.ToString();
-					Circle circle = new Circle(name_cd, FigureColor);
-					Scopes[Scopes.Count - 1].Add(name_cd, circle);
+					dynamic circle = new Circle(name_cd, FigureColor);
+
+					if (Scopes[Scopes.Count - 1].ContainsKey(name_cd))
+					{
+						Scopes[Scopes.Count - 1][name_cd] = circle;	
+					}
+					else
+					{
+						Scopes[Scopes.Count - 1].Add(name_cd, circle);
+					}
 					return circle;
 
 				//declaracion de linea definida
@@ -861,8 +983,16 @@ namespace INTERPRETE_C__to_HULK
 					string name_l = node.Children[0].Value.ToString();
 					object? p1_l = Evaluate(node.Children[1]);
 					object? p2_l = Evaluate(node.Children[2]);
-					Line line1 = new Line(name_l, FigureColor, (Point)p1_l, (Point)p2_l);
-					Scopes[Scopes.Count - 1].Add(name_l, line1);
+					dynamic line1 = new Line(name_l, FigureColor, (Point)p1_l, (Point)p2_l);
+					
+					if (Scopes[Scopes.Count - 1].ContainsKey(name_l))
+					{
+						Scopes[Scopes.Count - 1][name_l] = line1;
+					}
+					else
+					{
+						Scopes[Scopes.Count - 1].Add(name_l, line1);
+					}
 					return line1;
 
 				//declaracion de segmento definido
@@ -870,8 +1000,16 @@ namespace INTERPRETE_C__to_HULK
 					string name_s = node.Children[0].Value.ToString();
 					object? p1_s = Evaluate(node.Children[1]);
 					object? p2_s = Evaluate(node.Children[2]);
-					Segment segment1 = new Segment(name_s, FigureColor, (Point)p1_s, (Point)p2_s);
-					Scopes[Scopes.Count - 1].Add(name_s, segment1);
+					dynamic segment1 = new Segment(name_s, FigureColor, (Point)p1_s, (Point)p2_s);
+
+					if (Scopes[Scopes.Count - 1].ContainsKey(name_s))
+					{
+						Scopes[Scopes.Count - 1][name_s] = segment1;
+					}
+					else
+					{
+						Scopes[Scopes.Count - 1].Add(name_s, segment1);
+					}
 					return segment1;
 
 				//declaracion de rayo definido
@@ -879,8 +1017,16 @@ namespace INTERPRETE_C__to_HULK
 					string name_r = node.Children[0].Value.ToString();
 					object? p1_r = Evaluate(node.Children[1]);
 					object? p2_r = Evaluate(node.Children[2]);
-					Ray ray1 = new Ray(name_r, FigureColor, (Point)p1_r, (Point)p2_r);
-					Scopes[Scopes.Count - 1].Add(name_r, ray1);
+					dynamic ray1 = new Ray(name_r, FigureColor, (Point)p1_r, (Point)p2_r);
+
+					if (Scopes[Scopes.Count - 1].ContainsKey(name_r))
+					{
+						Scopes[Scopes.Count - 1][name_r] = ray1;
+					}
+					else
+					{
+						Scopes[Scopes.Count - 1].Add(name_r, ray1);
+					}
 					return ray1;
 
 				//declaracion de arco definido
@@ -890,8 +1036,16 @@ namespace INTERPRETE_C__to_HULK
 					object? p2_a = Evaluate(node.Children[2]);
 					object? p3_a = Evaluate(node.Children[3]);
 					object? m_a = Evaluate(node.Children[4]);
-					Arc arc1 = new Arc(name_a, FigureColor, (Point)p1_a, (Point)p2_a, (Point)p3_a, (Measure)m_a);
-					Scopes[Scopes.Count - 1].Add(name_a, arc1);
+					dynamic arc1 = new Arc(name_a, FigureColor, (Point)p1_a, (Point)p2_a, (Point)p3_a, (Measure)m_a);
+					
+					if (Scopes[Scopes.Count - 1].ContainsKey(name_a))
+					{
+						Scopes[Scopes.Count - 1][name_a] = arc1;
+					}
+					else
+					{
+						Scopes[Scopes.Count - 1].Add(name_a, arc1);
+					}
 					return arc1;
 
 				//declaracion de circulo definido
@@ -899,8 +1053,16 @@ namespace INTERPRETE_C__to_HULK
 					string name_c = node.Children[0].Value.ToString();
 					object? p_c = Evaluate(node.Children[1]);
 					object? m_c = Evaluate(node.Children[2]);
-					Circle circle1 = new Circle(name_c, FigureColor, (Point)p_c, (Measure)m_c);
-					Scopes[Scopes.Count - 1].Add(name_c, circle1);
+					dynamic circle1 = new Circle(name_c, FigureColor, (Point)p_c, (Measure)m_c);
+					
+					if (Scopes[Scopes.Count - 1].ContainsKey(name_c))
+					{
+						Scopes[Scopes.Count - 1][name_c] = circle1;
+					}
+					else
+					{
+						Scopes[Scopes.Count - 1].Add(name_c, circle1);
+					}
 					return circle1;
 
 				//SECUENCIAS
@@ -1172,6 +1334,7 @@ namespace INTERPRETE_C__to_HULK
 		//Metodo para alamacenar y asignar la variable global declarada en codigo
 		void Save_Global_Var(Node global_var)
 		{
+
 			string name = global_var.Children[0].Value.ToString();
 			dynamic value = Evaluate(global_var.Children[1]);
 
@@ -1179,9 +1342,13 @@ namespace INTERPRETE_C__to_HULK
 			if (Function_Exist(name)) Input_Error("The variable " + name + " already has a definition as a function in the current context");
 
 			//si la variable ya existe en el diccionario, lanzar excepcion
-			if (variables_globales.ContainsKey(name)) Input_Error("The variable " + name + " already has a definition in the current context");
+			//TODO if (Scopes[Scopes.Count - 1].ContainsKey(name)) Input_Error("The variable " + name + " already has a definition in the current context");
+			
+			
+			if (Scopes[Scopes.Count - 1].ContainsKey(name))
+				Scopes[Scopes.Count - 1][name] = value;
 
-			else variables_globales.Add(name, value);
+			else Scopes[Scopes.Count - 1].Add(name, value);
 		}
 
 		//metodo para almacenar y asignar las variables globales a las que se les asignan valores de una sequencia
@@ -1274,8 +1441,11 @@ namespace INTERPRETE_C__to_HULK
 
 				//Note - Change variables_globales to Scope
 				//si la variable ya existe en el diccionario, lanzar excepcion
-				if (Scopes[Scopes.Count - 1].ContainsKey(name)) Input_Error("The variable " + name + " already has a definition in the current context");
-
+				//TODO if (Scopes[Scopes.Count - 1].ContainsKey(name)) Input_Error("The variable " + name + " already has a definition in the current context");
+				
+				if (Scopes[Scopes.Count - 1].ContainsKey(name))
+					Scopes[Scopes.Count - 1][name] = value;
+				
 				else Scopes[Scopes.Count - 1].Add(name, value);
 			}
 		}
@@ -1395,6 +1565,7 @@ namespace INTERPRETE_C__to_HULK
 		{
 			// Crea un nuevo diccionario para almacenar las variables del bloque Let
 			Dictionary<string, dynamic> Var_let_in = new Dictionary<string, dynamic>();
+			
 			// Añade todas las variables del ámbito actual al nuevo diccionario
 			foreach (string key in Scopes[Scopes.Count - 1].Keys)
 			{
@@ -1407,6 +1578,9 @@ namespace INTERPRETE_C__to_HULK
 			// Para cada asignación en la lista de asignaciones, evalúa el valor y añade la variable al nuevo diccionario
 			foreach (Node Child in Children_assigment_list.Children)
 			{
+				Evaluate(Child);
+
+				/*
 				if (Child.Type == "sequence_asigment")
 				{
 					Evaluate(Child);
@@ -1433,6 +1607,7 @@ namespace INTERPRETE_C__to_HULK
 				{
 					Scopes[Scopes.Count - 1].Add(name, value);
 				}
+				*/
 			}
 		}
 

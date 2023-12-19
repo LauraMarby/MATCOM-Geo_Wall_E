@@ -10,20 +10,34 @@ public partial class Drawing_Area : Panel
 
 	public bool draw = false;
 
-	Font defaultFont = ThemeDB.FallbackFont; 
+	Font defaultFont = ThemeDB.FallbackFont;
 	int defaultFontSize = ThemeDB.FallbackFontSize;
+
+
+	//traslacion
+	bool vector_declared;
+	Vector2 traslation_vector;
+	bool found;
 
 	public override void _Draw()
 	{
+		vector_declared = false;
+		Vector2 traslation_vector = new Vector2(0, 0);
 		string text;
+		found = false;
+
 		//primero las circunferencias
 		foreach (DrawableProperties f in figures)
 		{
 			if (f.Type == "circle")
 			{
-				DrawArc(new Vector2((float)f.P1.X, (float)f.P1.Y), (float)f.Radius, 0, 7, 100, Paint(f.Color));
+				//traslada si esta fuera de rango, sino no hace nada
+				var vector = Operation_T(f.P1);
+				found = true;
+
+				DrawArc(vector, (float)f.Radius, 0, 7, 100, Paint(f.Color));
 				text = f.Msg;
-				if (text is not null) DrawString(defaultFont, new Vector2((float)f.P1.X, (float)f.P1.Y), text, HorizontalAlignment.Left, 200, defaultFontSize, Colors.White);
+				if (text is not null) DrawString(defaultFont, vector, text, HorizontalAlignment.Left, 200, defaultFontSize, Colors.White);
 			}
 		}
 
@@ -36,17 +50,24 @@ public partial class Drawing_Area : Panel
 		{
 			if (f.Type == "arc")
 			{
+				found = true;
+				//traslada si esta fuera de rango, sino no hace nada
+				var vector1 = Operation_T(f.P1);
+				found = true;
+				var vector2 = Operation_T(f.P2);
+				var vector3 = Operation_T(f.P3);
+
 				//hallar pendiendtes de las recas
-				m1 = ((float)f.P2.Y - (float)f.P1.Y) / ((float)f.P2.X - (float)f.P1.X);
-				m2 = ((float)f.P3.Y - (float)f.P1.Y) / ((float)f.P3.X - (float)f.P1.X);
+				m1 = ((float)vector2.Y - (float)vector1.Y) / ((float)vector2.X - (float)vector1.X);
+				m2 = ((float)vector3.Y - (float)vector1.Y) / ((float)vector3.X - (float)vector1.X);
 				//hallar angulos con resepecto al eje x (en radianes)
 				//angle_1 = (float)Math.Atan(m1);
 				//angle_2 = (float)Math.Atan(m2);
-				angle_1 = (float)Math.Atan2((float)f.P2.Y - (float)f.P1.Y,(float)f.P2.X - (float)f.P1.X);
-				angle_2 = (float)Math.Atan2((float)f.P3.Y - (float)f.P1.Y,(float)f.P3.X - (float)f.P1.X);
-				DrawArc(new Vector2((float)f.P1.X, (float)f.P1.Y), (float)f.Radius, angle_1, angle_2, 60, Paint(f.Color), 1);
+				angle_1 = (float)Math.Atan2((float)vector2.Y - (float)vector1.Y, (float)vector2.X - (float)vector1.X);
+				angle_2 = (float)Math.Atan2((float)vector3.Y - (float)vector1.Y, (float)vector3.X - (float)vector1.X);
+				DrawArc(vector1, (float)f.Radius, angle_1, angle_2, 60, Paint(f.Color), 1);
 				text = f.Msg;
-				if (text is not null) DrawString(defaultFont, new Vector2((float)f.P1.X, (float)f.P1.Y), text, HorizontalAlignment.Left, 200, defaultFontSize, Colors.White);
+				if (text is not null) DrawString(defaultFont, vector1, text, HorizontalAlignment.Left, 200, defaultFontSize, Colors.White);
 			}
 		}
 
@@ -60,11 +81,16 @@ public partial class Drawing_Area : Panel
 		{
 			if (f.Type == "line")
 			{
-				var points = RectIntersection(new Vector2((float)f.P1.X, (float)f.P1.Y), new Vector2((float)f.P2.X, (float)f.P2.Y), 1152, 648, 0, 0);
+				//traslada si esta fuera de rango, sino no hace nada
+				var vector1 = Operation_T(f.P1);
+				found = true;
+				var vector2 = Operation_T(f.P2);
+
+				var points = RectIntersection(vector1, vector2, 1152, 648, 0, 0);
 
 				DrawLine(points[0], points[1], Paint(f.Color));
 				text = f.Msg;
-				if (text is not null) DrawString(defaultFont, new Vector2((float)f.P1.X, (float)f.P1.Y), text, HorizontalAlignment.Left, 200, defaultFontSize, Colors.White);
+				if (text is not null) DrawString(defaultFont, vector1, text, HorizontalAlignment.Left, 200, defaultFontSize, Colors.White);
 			}
 		}
 
@@ -73,9 +99,14 @@ public partial class Drawing_Area : Panel
 		{
 			if (f.Type == "segment")
 			{
-				DrawLine(new Vector2((float)f.P1.X, (float)f.P1.Y), new Vector2((float)f.P2.X, (float)f.P2.Y), Paint(f.Color));
+				//traslada si esta fuera de rango, sino no hace nada
+				var vector1 = Operation_T(f.P1);
+				found = true;
+				var vector2 = Operation_T(f.P2);
+
+				DrawLine(vector1, vector2, Paint(f.Color));
 				text = f.Msg;
-				if (text is not null) DrawString(defaultFont, new Vector2((float)f.P1.X, (float)f.P1.Y), text, HorizontalAlignment.Left, 200, defaultFontSize, Colors.White);
+				if (text is not null) DrawString(defaultFont, vector1, text, HorizontalAlignment.Left, 200, defaultFontSize, Colors.White);
 			}
 		}
 
@@ -84,11 +115,16 @@ public partial class Drawing_Area : Panel
 		{
 			if (f.Type == "ray")
 			{
-				var point = RayBorder(RectIntersection(new Vector2((float)f.P1.X, (float)f.P1.Y), new Vector2((float)f.P2.X, (float)f.P2.Y), 1152, 648, 0, 0), new Vector2((float)f.P1.X, (float)f.P1.Y), new Vector2((float)f.P2.X, (float)f.P2.Y));
+				//traslada si esta fuera de rango, sino no hace nada
+				var vector1 = Operation_T(f.P1);
+				found = true;
+				var vector2 = Operation_T(f.P2);
 
-				DrawLine(new Vector2((float)f.P1.X, (float)f.P1.Y), point, Paint(f.Color));
+				var point = RayBorder(RectIntersection(vector1, vector2, 1152, 648, 0, 0), vector1, vector2);
+
+				DrawLine(vector1, point, Paint(f.Color));
 				text = f.Msg;
-				if (text is not null) DrawString(defaultFont, new Vector2((float)f.P1.X, (float)f.P1.Y), text, HorizontalAlignment.Left, 200, defaultFontSize, Colors.White);
+				if (text is not null) DrawString(defaultFont, vector1, text, HorizontalAlignment.Left, 200, defaultFontSize, Colors.White);
 			}
 		}
 
@@ -97,9 +133,13 @@ public partial class Drawing_Area : Panel
 		{
 			if (f.Type == "point")
 			{
-				DrawCircle(new Vector2((float)f.X, (float)f.Y), 5, Paint(f.Color));
+				//traslada si esta fuera de rango, sino no hace nada
+				var vector = Operation_T(f);
+				found = true;
+
+				DrawCircle(vector, 5, Paint(f.Color));
 				text = f.Msg;
-				if (text is not null) DrawString(defaultFont, new Vector2((float)f.X, (float)f.Y), text, HorizontalAlignment.Left, 200, defaultFontSize, Colors.White);
+				if (text is not null) DrawString(defaultFont, vector, text, HorizontalAlignment.Left, 200, defaultFontSize, Colors.White);
 			}
 		}
 
@@ -179,6 +219,57 @@ public partial class Drawing_Area : Panel
 		double db2 = Math.Sqrt(Math.Pow(p2.X - list[1].X, 2) + Math.Pow(p2.Y - list[1].Y, 2));
 		if (db1 < db2) return list[0];
 		return list[1];
+	}
+
+	//metodo para verificar si un punto se sale de los limites
+	public bool Is_Out_Of_Range(DrawableProperties point)
+	{
+		return point.X <= 50 || point.X >= 500 || point.Y <= 50 || point.Y >= 600;
+	}
+
+	//metodo para hallar el vector coordenada
+	public Vector2 Find_Tras_Vector(DrawableProperties point)
+	{
+		double x = 0;
+		double y = 0;
+
+		if (point.X <= 50 || point.X >= 500)
+		{
+			x = (double)((-1) * point.X + 200);
+		}
+		if (point.Y <= 50|| point.Y >= 600)
+		{
+			y = (double)((-1) * point.Y + 300);
+		}
+
+		return new Vector2((float)x, (float)y);
+	}
+
+	//metodo para trasladar un punto dado un vector de traslacion
+	public Vector2 Traslation(DrawableProperties point, Vector2 traslation_vector)
+	{
+		var x = point.X + traslation_vector.X;
+		var y = point.Y + traslation_vector.Y;
+
+		return new Vector2((float)x, (float)y);
+	}
+
+	//metodo para encapsular el proceso de traslacion
+	public Vector2 Operation_T(DrawableProperties point)
+	{
+		//si el punto esta fuera de rango
+		if (Is_Out_Of_Range(point))
+		{
+			//si no esta declarado, halla el vector y traslada el punto
+			if (!vector_declared && !found)
+			{
+				traslation_vector = Find_Tras_Vector(point);
+				vector_declared = true;
+			}
+			//si el vector traslacion ya esta declarado, traslada el punto
+			return Traslation(point, traslation_vector);
+		}
+		return new Vector2((float)point.X, (float)point.Y);
 	}
 
 	//metodo que recibe la orden de dibujar

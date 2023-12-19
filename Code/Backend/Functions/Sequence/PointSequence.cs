@@ -158,7 +158,7 @@ namespace G_Wall_E
                     continue;
                 }
 
-                else if (child.Value.ToString() == "_")
+                else if (child.Value.ToString() == "underscore")
                 {
                     if (j < values[i].Count || is_undefined_concat.Contains(i)) j++;
                     continue;

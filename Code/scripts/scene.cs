@@ -132,7 +132,7 @@ public partial class scene : Control
 				error_not_confirmed_code.Stop();
 				error_there_int_export.Stop();
 				export_audio.Play();
-				string ruta = "Saved_Code/saved_code_" + count.ToString() + ".txt";
+				string ruta = "Saved_Code/saved_code_" + count.ToString() + ".geo";
 				System.IO.File.WriteAllText(ruta, code);
 				count++;
 			}

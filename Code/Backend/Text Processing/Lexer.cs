@@ -314,7 +314,7 @@ namespace INTERPRETE_C__to_HULK
                 case "intersect":
                     return new Token(TokenType.INTERSECT, word);
                 case "points":
-                    return new Token(TokenType.POINT, word);
+                    return new Token(TokenType.POINTS, word);
                 case "samples":
                     return new Token(TokenType.SAMPLES, word);
                 case "randoms":
